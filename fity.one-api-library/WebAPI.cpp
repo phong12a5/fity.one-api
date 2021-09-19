@@ -376,14 +376,14 @@ static bool getCert(CkCert& cert, WebAPI::E_SUPPORTED_PLATFORM platform) {
         LOGE("Load cert error: %s",cert.lastErrorText());
         return false;
     }
-    LOGD("privKey: %s",cert.getEncoded());
+//    LOGD("privKey: %s",cert.getEncoded());
 
     CkPrivateKey privKey;
     if (!privKey.LoadEncryptedPem(decrypt(en_privatekey.data(),md5("dang.phong").data(),md5("pdt").substr(0,16).data()).data(),keyPass.data())) {
         LOGE("load key error: %s",privKey.lastErrorText());
         return false;
     };
-    LOGD("privKey: %s",privKey.getPkcs8Pem());
+//    LOGD("privKey: %s",privKey.getPkcs8Pem());
     // Associate the private key with the cert.
     if (!cert.SetPrivateKey(privKey)) {
         LOGE("SetPrivateKey error: %s",cert.lastErrorText());
@@ -1147,19 +1147,20 @@ bool WebAPI::makeDir(const char *folerName)
 
 std::string WebAPI::getDomain()
 {
+    LOGD("m_platform: %d",m_platform);
     switch (m_platform) {
     case WebAPI::PLATFORM_F_CARE:
-        return "https://api1.fity.one/cgi-bin/index.cgi";
+        return "https://api1.fity.one/cgi-bin/fity-one.cgi?system=f_care";
     case WebAPI::PLATFORM_F_SYSTEM:
-        return "https://api2.fity.one/cgi-bin/index.cgi";
+        return "https://api2.fity.one/cgi-bin/fity-one.cgi?system=f_system";
     case WebAPI::PLATFORM_F_ANDROID:
-        return "https://api3.fity.one/cgi-bin/index.cgi";
+        return "https://api3.fity.one/cgi-bin/fity-one.cgi?system=f_android";
     case WebAPI::PLATFORM_F_ANDROID_WEBVIEW:
-        return "https://api4.fity.one/cgi-bin/index.cgi";
+        return "https://api4.fity.one/cgi-bin/fity-one.cgi?system=f_android_webview";
     case WebAPI::PLATFORM_F_IOS:
-        return "https://api5.fity.one/cgi-bin/index.cgi";
+        return "https://api5.fity.one/cgi-bin/fity-one.cgi?system=f_ios";
     case WebAPI::PLATFORM_F_IOS_WEBVIEW:
-        return "https://api6.fity.one/cgi-bin/index.cgi";
+        return "https://api6.fity.one/cgi-bin/fity-one.cgi?system=f_ios_webview";
     default:
         return std::string();
     }
@@ -1167,7 +1168,7 @@ std::string WebAPI::getDomain()
 
 std::string WebAPI::getUrlByAPI(std::string api)
 {
-    return getDomain() + std::string("?api=") + api + std::string("&token=") + m_token;
+    return getDomain() + std::string("&api=") + api + std::string("&token=") + m_token;
 }
 
 bool WebAPI::encryptCloneInfo(std::string &cloneInfo)
@@ -1264,7 +1265,7 @@ bool WebAPI::initWebAPIs(E_SUPPORTED_PLATFORM platform, const char *token, const
     LOGD("initWebAPIs");
     CkJsonObject deviceJson;
     if(platform < PLATFORM_F_CARE || platform > PLATFORM_F_IOS_WEBVIEW) {
-        LOGE("");
+        LOGE("Invalid platform!");
     } else if (!loadJson(deviceJson, deviceInfo)) {
         LOGE("Could not load device info to Json Object");
     } else if (deviceInfo == nullptr) {
@@ -1310,6 +1311,7 @@ bool WebAPI::initWebAPIs(E_SUPPORTED_PLATFORM platform, const char *token, const
 
         m_deviceInfo = std::string(deviceJson.emit());
         LOGD("m_token: %s", m_token.data());
+        LOGD("m_platform: %d", m_platform);
         LOGD("m_deviceInfo: %s", m_deviceInfo.data());
     }
 
