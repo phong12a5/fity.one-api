@@ -4,12 +4,11 @@
 #
 #-------------------------------------------------
 
-QT       += testlib
 QT       -= gui
 
-TARGET = fityone-api
 TEMPLATE = lib
-CONFIG += staticlib
+CONFIG += staticlib f-android-build
+LIB_VERSION = Version-0.0.1
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -32,26 +31,43 @@ HEADERS += \
 
 
 # install AutoFarmer API lib
-    target.path = /fityone-api/libs/$$ANDROID_TARGET_ARCH
-    INSTALLS += target
+#    target.path = /fityone-api/libs/$$ANDROID_TARGET_ARCH
+#    INSTALLS += target
 
 # Coppy header files to include folder
-    target_headers.files  = $$PWD/*.hpp
-    target_headers.path   = /fityone-api/include/
-    INSTALLS              += target_headers
+#    target_headers.files  = $$PWD/*.hpp
+#    target_headers.path   = /fityone-api/include/
+#    INSTALLS              += target_headers
 
-android {
+
+f-care-build {
+    TARGET = fityone-api-
+    INCLUDEPATH += $$PWD/chilkat-9.5.0-i686-8.1.0-win32-sjlj/include
+    LIBS += -L$$PWD/chilkat-9.5.0-i686-8.1.0-win32-sjlj/libs/ -lchilkat-9.5.0
+}
+
+f-system-build {
+    TARGET = fityone-api-msvc
+    INCLUDEPATH += $$PWD/chilkat-9.5.0-android-cpp/include
+    CONFIG(release, debug|release) LIBS += -L$$PWD/chilkat-9.5.0-x86-vc2019/libs/ -lChilkatRel
+    CONFIG(debug, debug|release) LIBS += -L$$PWD/chilkat-9.5.0-x86-vc2019/libs/ -lChilkat
+}
+
+f-android-build {
+    TARGET = fityone-api-android
     DEFINES += ANDROID_PLATFORM
     INCLUDEPATH += $$PWD/chilkat-9.5.0-android-cpp/include
     LIBS += -L$$PWD/chilkat-9.5.0-android-cpp/libs/$$QT_ARCH/ -lchilkatAndroid
+
+    target.path += /release/$$LIB_VERSION/android/libs/$$ANDROID_TARGET_ARCH
+    INSTALLS += target
+    message($$DESTDIR)
+
+    target_headers.path   = /release/$$LIB_VERSION/android/include
+    target_headers.files  = $$PWD/*.hpp
+    INSTALLS              += target_headers
 }
 
-win32 {
+ios-build {
 
-}
-
-macx {
-    DISTFILES += MACOS
-    INCLUDEPATH += $$PWD/chilkat-9.5.0-macosx/include
-    LIBS += -L$$PWD/chilkat-9.5.0-macosx/libStatic -lchilkat_x86_64
 }
