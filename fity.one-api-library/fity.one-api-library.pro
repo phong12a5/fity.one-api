@@ -7,8 +7,7 @@
 QT       -= gui
 
 TEMPLATE = lib
-CONFIG += staticlib f-android-build
-LIB_VERSION = 0.0.1
+CONFIG += f-android-build
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -29,16 +28,8 @@ HEADERS += \
     log.h\
     auto-genereted-cert.h
 
-
-# install AutoFarmer API lib
-#    target.path = /fityone-api/libs/$$ANDROID_TARGET_ARCH
-#    INSTALLS += target
-
-# Coppy header files to include folder
-#    target_headers.files  = $$PWD/*.hpp
-#    target_headers.path   = /fityone-api/include/
-#    INSTALLS              += target_headers
-
+CONFIG(debug, debug|release) DEFINES += DEBUG_MODE
+CONFIG(debug, debug|release) DEFINES += RELEASE_MODE
 
 f-care-build {
     TARGET = fityone-api-
@@ -59,11 +50,7 @@ f-android-build {
     INCLUDEPATH += $$PWD/chilkat-9.5.0-android-cpp/include
     LIBS += -L$$PWD/chilkat-9.5.0-android-cpp/libs/$$QT_ARCH/ -lchilkatAndroid
 
-    target.path += /release/fity.one-api-$$LIB_VERSION/android/libs/$$ANDROID_TARGET_ARCH
-    INSTALLS += target
-    message($$DESTDIR)
-
-    target_headers.path   = /release/fity.one-api-$$LIB_VERSION/android/include
+    target_headers.path   = /release/fity.one-api/android/include
     target_headers.files  = $$PWD/*.hpp
     INSTALLS              += target_headers
 }

@@ -338,32 +338,32 @@ static bool getCert(CkCert& cert, WebAPI::E_SUPPORTED_PLATFORM platform) {
     std::string en_cert, en_privatekey, keyPass;
 
     switch (platform) {
-    case WebAPI::PLATFORM_CHROME:
+    case WebAPI::PLATFORM_F_CARE:
         en_cert = en_cert1;
         en_privatekey = en_privatekey1;
         keyPass = "client1";
         break;
-    case WebAPI::PLATFORM_LDPLAYER:
+    case WebAPI::PLATFORM_F_SYSTEM:
         en_cert = en_cert2;
         en_privatekey = en_privatekey2;
         keyPass = "client2";
         break;
-    case WebAPI::PLATFORM_ANDROID:
+    case WebAPI::PLATFORM_F_ANDROID:
         en_cert = en_cert3;
         en_privatekey = en_privatekey3;
         keyPass = "client3";
         break;
-    case WebAPI::PLATFORM_ANDROID_WEBVIEW:
+    case WebAPI::PLATFORM_F_ANDROID_WEBVIEW:
         en_cert = en_cert4;
         en_privatekey = en_privatekey4;
         keyPass = "client4";
         break;
-    case WebAPI::PLATFORM_IOS:
+    case WebAPI::PLATFORM_F_IOS:
         en_cert = en_cert5;
         en_privatekey = en_privatekey5;
         keyPass = "client5";
         break;
-    case WebAPI::PLATFORM_IOS_WEBVIEW:
+    case WebAPI::PLATFORM_F_IOS_WEBVIEW:
         en_cert = en_cert6;
         en_privatekey = en_privatekey6;
         keyPass = "client6";
@@ -1148,18 +1148,18 @@ bool WebAPI::makeDir(const char *folerName)
 std::string WebAPI::getDomain()
 {
     switch (m_platform) {
-    case WebAPI::PLATFORM_CHROME:
-        return "https://api.fity.one/cgi-bin/fityone.1.cgi";
-    case WebAPI::PLATFORM_LDPLAYER:
-        return "https://api.fity.one/cgi-bin/fityone.2.cgi";
-    case WebAPI::PLATFORM_ANDROID:
-        return "https://api.fity.one/cgi-bin/fityone.3.cgi";
-    case WebAPI::PLATFORM_ANDROID_WEBVIEW:
-        return "https://api.fity.one/cgi-bin/fityone.4.cgi";
-    case WebAPI::PLATFORM_IOS:
-        return "https://api.fity.one/cgi-bin/fityone.5.cgi";
-    case WebAPI::PLATFORM_IOS_WEBVIEW:
-        return "https://api.fity.one/cgi-bin/fityone.6.cgi";
+    case WebAPI::PLATFORM_F_CARE:
+        return "https://api1.fity.one/cgi-bin/index.cgi";
+    case WebAPI::PLATFORM_F_SYSTEM:
+        return "https://api2.fity.one/cgi-bin/index.cgi";
+    case WebAPI::PLATFORM_F_ANDROID:
+        return "https://api3.fity.one/cgi-bin/index.cgi";
+    case WebAPI::PLATFORM_F_ANDROID_WEBVIEW:
+        return "https://api4.fity.one/cgi-bin/index.cgi";
+    case WebAPI::PLATFORM_F_IOS:
+        return "https://api5.fity.one/cgi-bin/index.cgi";
+    case WebAPI::PLATFORM_F_IOS_WEBVIEW:
+        return "https://api6.fity.one/cgi-bin/index.cgi";
     default:
         return std::string();
     }
@@ -1263,7 +1263,7 @@ bool WebAPI::initWebAPIs(E_SUPPORTED_PLATFORM platform, const char *token, const
 {
     LOGD("initWebAPIs");
     CkJsonObject deviceJson;
-    if(platform < PLATFORM_CHROME || platform > PLATFORM_IOS_WEBVIEW) {
+    if(platform < PLATFORM_F_CARE || platform > PLATFORM_F_IOS_WEBVIEW) {
         LOGE("");
     } else if (!loadJson(deviceJson, deviceInfo)) {
         LOGE("Could not load device info to Json Object");
@@ -1286,22 +1286,22 @@ bool WebAPI::initWebAPIs(E_SUPPORTED_PLATFORM platform, const char *token, const
         m_platform = platform;
 
         switch (m_platform) {
-        case WebAPI::PLATFORM_CHROME:
+        case WebAPI::PLATFORM_F_CARE:
             deviceJson.UpdateString("system","f_system");
             break;
-        case WebAPI::PLATFORM_LDPLAYER:
+        case WebAPI::PLATFORM_F_SYSTEM:
             deviceJson.UpdateString("system","f_care");
             break;
-        case WebAPI::PLATFORM_ANDROID:
+        case WebAPI::PLATFORM_F_ANDROID:
             deviceJson.UpdateString("system","f_anroid");
             break;
-        case WebAPI::PLATFORM_ANDROID_WEBVIEW:
+        case WebAPI::PLATFORM_F_ANDROID_WEBVIEW:
             deviceJson.UpdateString("system","f_android_webview");
             break;
-        case WebAPI::PLATFORM_IOS:
+        case WebAPI::PLATFORM_F_IOS:
             deviceJson.UpdateString("system","f_ios");
             break;
-        case WebAPI::PLATFORM_IOS_WEBVIEW:
+        case WebAPI::PLATFORM_F_IOS_WEBVIEW:
             deviceJson.UpdateString("system","f_ios_webview");
             break;
         default:
