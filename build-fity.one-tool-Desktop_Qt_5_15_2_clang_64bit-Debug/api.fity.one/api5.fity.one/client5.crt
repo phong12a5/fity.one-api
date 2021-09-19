@@ -1,0 +1,86 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 1048577 (0x100001)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=US, ST=Some-State, O=api5.fity.one Ltd, CN=api5.fity.one/emailAddress=ca@api5.fity.one
+        Validity
+            Not Before: Sep 18 09:39:13 2021 GMT
+            Not After : Sep 16 09:39:13 2031 GMT
+        Subject: C=US, ST=State or Providence, O=Company, CN=api5.fity.one/emailAddress=client5@api5.fity.one
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:da:c9:dd:f1:0b:8f:bf:ff:47:2b:23:26:b0:4c:
+                    2f:35:68:0a:23:a1:a7:2c:16:7d:9a:e1:92:bc:ec:
+                    db:9a:2f:40:6a:1b:df:04:80:a9:0f:68:77:81:1d:
+                    82:69:1f:91:c9:5c:9c:e6:27:72:1c:0c:37:55:0e:
+                    9f:b7:1b:f1:e8:c1:fa:f9:de:42:89:76:64:fe:04:
+                    58:46:91:cc:55:ac:74:b0:4b:02:84:9a:ca:35:e1:
+                    44:b7:40:31:1e:2b:fd:55:4c:e1:1b:58:2b:f4:b2:
+                    c0:39:69:f9:b8:c5:16:c6:17:30:79:27:04:7c:db:
+                    a7:83:20:46:cc:e5:01:d2:6d:2e:a0:eb:6c:8d:3f:
+                    9c:18:44:14:76:96:fe:9d:b3:93:bd:82:20:6a:5a:
+                    f7:cb:0f:ae:02:2c:ff:0b:71:9f:fd:d9:f9:e2:69:
+                    9f:84:8a:f0:d3:2c:29:12:20:c4:a3:c0:e4:a7:a3:
+                    ce:bd:31:3e:ce:ae:a3:c4:67:ac:be:e1:73:ef:88:
+                    ba:92:e1:76:90:41:96:6b:15:35:a1:f1:ff:34:1e:
+                    6e:2a:1b:67:2e:e1:f3:e8:62:b7:24:74:32:c5:f9:
+                    1a:37:83:0c:5e:30:cd:49:ee:78:4d:47:b3:1e:5d:
+                    8e:11:f9:c7:95:95:64:b6:71:50:92:92:9d:e8:b3:
+                    07:67
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Subject Key Identifier: 
+                46:02:02:97:61:7C:3A:46:6C:6A:AC:0D:3A:86:46:2E:BF:24:30:B9
+            X509v3 Authority Key Identifier: 
+                keyid:05:59:63:0D:DD:50:B1:84:A6:B7:DA:15:41:D5:74:68:61:02:F9:3B
+
+            X509v3 CRL Distribution Points: 
+
+                Full Name:
+                  URI:http://www.yourdomain.com/ca/crl.pem
+
+    Signature Algorithm: sha256WithRSAEncryption
+         15:5d:18:b4:77:c2:f9:6b:49:fb:97:d5:00:e3:f3:bc:e4:3b:
+         b5:db:4a:9a:78:00:08:e1:57:fa:8e:cf:ac:35:a3:9c:0e:59:
+         a3:83:c4:67:42:21:00:24:05:1e:70:92:33:91:59:2d:cc:dd:
+         c1:5a:af:0d:cf:fe:20:9e:f3:9a:5f:1a:33:2f:f3:57:37:d6:
+         e9:ad:05:8f:e0:86:bd:e2:e7:2e:81:ad:a3:fe:39:c3:e0:1d:
+         8d:4b:ff:ba:fd:c1:f9:c2:ee:a6:3d:92:c7:2b:e2:58:05:e1:
+         89:e2:9b:68:25:fb:ae:c5:0f:c1:fe:2b:b4:54:d3:14:d5:3a:
+         52:4f:2f:52:3c:e3:ea:59:47:39:e4:83:01:f3:36:50:2a:5e:
+         fc:27:e2:74:07:e8:5b:33:73:a2:a5:7d:d3:29:33:33:94:c4:
+         e9:d2:41:2d:de:f3:86:0a:27:a9:1d:38:c6:5d:6e:ac:0f:90:
+         16:75:1c:3f:bd:87:46:0c:16:e1:5a:ec:0f:58:a2:29:8a:27:
+         2e:d8:02:fc:24:10:1c:e3:16:6b:7b:4e:51:0e:75:e0:37:56:
+         f5:a7:25:27:86:4c:c7:27:fc:34:0a:dc:9f:90:bc:18:6b:51:
+         ba:a3:5e:b7:0c:2c:df:d6:03:c8:2f:0b:52:70:33:37:14:a5:
+         49:02:8b:0b
+-----BEGIN CERTIFICATE-----
+MIID9TCCAt2gAwIBAgIDEAABMA0GCSqGSIb3DQEBCwUAMHcxCzAJBgNVBAYTAlVT
+MRMwEQYDVQQIDApTb21lLVN0YXRlMRowGAYDVQQKDBFhcGk1LmZpdHkub25lIEx0
+ZDEWMBQGA1UEAwwNYXBpNS5maXR5Lm9uZTEfMB0GCSqGSIb3DQEJARYQY2FAYXBp
+NS5maXR5Lm9uZTAeFw0yMTA5MTgwOTM5MTNaFw0zMTA5MTYwOTM5MTNaMHsxCzAJ
+BgNVBAYTAlVTMRwwGgYDVQQIExNTdGF0ZSBvciBQcm92aWRlbmNlMRAwDgYDVQQK
+EwdDb21wYW55MRYwFAYDVQQDEw1hcGk1LmZpdHkub25lMSQwIgYJKoZIhvcNAQkB
+FhVjbGllbnQ1QGFwaTUuZml0eS5vbmUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
+ggEKAoIBAQDayd3xC4+//0crIyawTC81aAojoacsFn2a4ZK87NuaL0BqG98EgKkP
+aHeBHYJpH5HJXJzmJ3IcDDdVDp+3G/Howfr53kKJdmT+BFhGkcxVrHSwSwKEmso1
+4US3QDEeK/1VTOEbWCv0ssA5afm4xRbGFzB5JwR826eDIEbM5QHSbS6g62yNP5wY
+RBR2lv6ds5O9giBqWvfLD64CLP8LcZ/92fniaZ+EivDTLCkSIMSjwOSno869MT7O
+rqPEZ6y+4XPviLqS4XaQQZZrFTWh8f80Hm4qG2cu4fPoYrckdDLF+Ro3gwxeMM1J
+7nhNR7MeXY4R+ceVlWS2cVCSkp3oswdnAgMBAAGjgYUwgYIwCQYDVR0TBAIwADAd
+BgNVHQ4EFgQURgICl2F8OkZsaqwNOoZGLr8kMLkwHwYDVR0jBBgwFoAUBVljDd1Q
+sYSmt9oVQdV0aGEC+TswNQYDVR0fBC4wLDAqoCigJoYkaHR0cDovL3d3dy55b3Vy
+ZG9tYWluLmNvbS9jYS9jcmwucGVtMA0GCSqGSIb3DQEBCwUAA4IBAQAVXRi0d8L5
+a0n7l9UA4/O85Du120qaeAAI4Vf6js+sNaOcDlmjg8RnQiEAJAUecJIzkVktzN3B
+Wq8Nz/4gnvOaXxozL/NXN9bprQWP4Ia94ucuga2j/jnD4B2NS/+6/cH5wu6mPZLH
+K+JYBeGJ4ptoJfuuxQ/B/iu0VNMU1TpSTy9SPOPqWUc55IMB8zZQKl78J+J0B+hb
+M3OipX3TKTMzlMTp0kEt3vOGCiepHTjGXW6sD5AWdRw/vYdGDBbhWuwPWKIpiicu
+2AL8JBAc4xZre05RDnXgN1b1pyUnhkzHJ/w0CtyfkLwYa1G6o163DCzf1gPILwtS
+cDM3FKVJAosL
+-----END CERTIFICATE-----
