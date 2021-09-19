@@ -8,7 +8,7 @@ QT       -= gui
 
 TEMPLATE = lib
 CONFIG += staticlib f-android-build
-LIB_VERSION = Version-0.0.1
+LIB_VERSION = 0.0.1
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -59,11 +59,11 @@ f-android-build {
     INCLUDEPATH += $$PWD/chilkat-9.5.0-android-cpp/include
     LIBS += -L$$PWD/chilkat-9.5.0-android-cpp/libs/$$QT_ARCH/ -lchilkatAndroid
 
-    target.path += /release/$$LIB_VERSION/android/libs/$$ANDROID_TARGET_ARCH
+    target.path += /release/fity.one-api-$$LIB_VERSION/android/libs/$$ANDROID_TARGET_ARCH
     INSTALLS += target
     message($$DESTDIR)
 
-    target_headers.path   = /release/$$LIB_VERSION/android/include
+    target_headers.path   = /release/fity.one-api-$$LIB_VERSION/android/include
     target_headers.files  = $$PWD/*.hpp
     INSTALLS              += target_headers
 }
