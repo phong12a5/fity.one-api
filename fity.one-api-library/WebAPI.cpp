@@ -393,6 +393,37 @@ static bool getCert(CkCert& cert, WebAPI::E_SUPPORTED_PLATFORM platform) {
     return true;
 }
 
+std::string deviceInfo2CKJson(const DEVICE_INFO& device_info) {
+    CkJsonObject json;
+    json.UpdateString("device_id",device_info.device_id);
+    json.UpdateString("app_version_name",device_info.app_version_name);
+
+    switch (device_info.platform) {
+    case WebAPI::PLATFORM_F_CARE:
+        json.UpdateString("system","f_system");
+        break;
+    case WebAPI::PLATFORM_F_SYSTEM:
+        json.UpdateString("system","f_care");
+        break;
+    case WebAPI::PLATFORM_F_ANDROID:
+        json.UpdateString("system","f_android");
+        break;
+    case WebAPI::PLATFORM_F_ANDROID_WEBVIEW:
+        json.UpdateString("system","f_android_webview");
+        break;
+    case WebAPI::PLATFORM_F_IOS:
+        json.UpdateString("system","f_ios");
+        break;
+    case WebAPI::PLATFORM_F_IOS_WEBVIEW:
+        json.UpdateString("system","f_ios_webview");
+        break;
+    default:
+        json.UpdateString("system","unknown");
+        break;
+    }
+    return std::string(json.emit());
+}
+
 WebAPI::WebAPI()
 {
     m_listKey.emplace_back("signInName");
@@ -1017,9 +1048,7 @@ WebAPI::WebAPI()
     m_listValue.emplace_back("uidpid100815901");
 
     m_initState = false;
-    m_platform = PLATFORM_UNKNOWN;
     m_token = "";
-    m_deviceInfo = "";
     m_unlockState = unlockChilkat();
     m_dropBoxToken = "";
     m_existedPackagedList.clear();
@@ -1147,8 +1176,7 @@ bool WebAPI::makeDir(const char *folerName)
 
 std::string WebAPI::getDomain()
 {
-    LOGD("m_platform: %d",m_platform);
-    switch (m_platform) {
+    switch (m_deviceInfo.platform) {
     case WebAPI::PLATFORM_F_CARE:
         return "https://api1.fity.one/cgi-bin/fity-one.cgi?system=f_care";
     case WebAPI::PLATFORM_F_SYSTEM:
@@ -1260,59 +1288,24 @@ bool WebAPI::decryptCloneInfo(std::string &cloneInfo)
     return retVal;
 }
 
-bool WebAPI::initWebAPIs(E_SUPPORTED_PLATFORM platform, const char *token, const char *deviceInfo)
+bool WebAPI::initWebAPIs(const char *token, DEVICE_INFO& deviceInfo)
 {
     LOGD("initWebAPIs");
     CkJsonObject deviceJson;
-    if(platform < PLATFORM_F_CARE || platform > PLATFORM_F_IOS_WEBVIEW) {
+    if(deviceInfo.platform < PLATFORM_F_CARE || deviceInfo.platform > PLATFORM_F_IOS_WEBVIEW) {
         LOGE("Invalid platform!");
-    } else if (!loadJson(deviceJson, deviceInfo)) {
-        LOGE("Could not load device info to Json Object");
-    } else if (deviceInfo == nullptr) {
-        LOGE("deviceInfo is NULL");
-    } else if (token == nullptr) {
-        LOGE("token is NULL");
-    } else if (std::string(token).empty()) {
-        LOGE("Invalid token: %s !", token);
+    } else if(deviceInfo.device_id == nullptr || std::string(deviceInfo.device_id).empty()) {
+        LOGE("Invalid device_id!");
+    } else if (token == nullptr || std::string(token).empty()) {
+        LOGE("Invalid token");
     }
     else
     {
-#if 0
-        int app_signature = loadSignature(env,getGlobalContext(env));
-        deviceJson.UpdateInt("apk_signature_code",app_signature);
-#endif
-
         setInitState(true);
-        m_token = std::string(token);
-        m_platform = platform;
-
-        switch (m_platform) {
-        case WebAPI::PLATFORM_F_CARE:
-            deviceJson.UpdateString("system","f_system");
-            break;
-        case WebAPI::PLATFORM_F_SYSTEM:
-            deviceJson.UpdateString("system","f_care");
-            break;
-        case WebAPI::PLATFORM_F_ANDROID:
-            deviceJson.UpdateString("system","f_anroid");
-            break;
-        case WebAPI::PLATFORM_F_ANDROID_WEBVIEW:
-            deviceJson.UpdateString("system","f_android_webview");
-            break;
-        case WebAPI::PLATFORM_F_IOS:
-            deviceJson.UpdateString("system","f_ios");
-            break;
-        case WebAPI::PLATFORM_F_IOS_WEBVIEW:
-            deviceJson.UpdateString("system","f_ios_webview");
-            break;
-        default:
-            break;
-        }
-
-        m_deviceInfo = std::string(deviceJson.emit());
+        m_deviceInfo = deviceInfo;
+        m_token = token;
         LOGD("m_token: %s", m_token.data());
-        LOGD("m_platform: %d", m_platform);
-        LOGD("m_deviceInfo: %s", m_deviceInfo.data());
+        LOGD("m_deviceInfo: %s", deviceInfo2CKJson(m_deviceInfo).data());
     }
 
     LOGD("initWebAPIs: %s", (initState() ? "successful" : "failure"));
@@ -1324,7 +1317,7 @@ std::string WebAPI::token() const
     return m_token;
 }
 
-std::string WebAPI::deviceInfo() const
+DEVICE_INFO WebAPI::deviceInfo() const
 {
     return m_deviceInfo;
 }
@@ -1395,11 +1388,6 @@ std::string WebAPI::upsertDevice(const char * extraDeviceInfo) {
             }
         }
     }
-    else
-    {
-        retVal.UpdateString("error", "Could not load resp->bodyStr() -> JsonObject");
-        retVal.UpdateString("message", "API error!");
-    }
     LOGD("retVal: %s", retVal.emit());
     return retVal.emit();
 }
@@ -1427,11 +1415,6 @@ std::string WebAPI::updateDeviceInfo(const char * extraDeviceInfo) {
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
-    }
-    else
-    {
-        retVal.UpdateString("error", "Could not load resp->bodyStr() -> JsonObject");
-        retVal.UpdateString("message", "API error!");
     }
     LOGD("retVal: %s", retVal.emit());
     return retVal.emit();
@@ -1490,25 +1473,19 @@ std::string WebAPI::getConfig()
             }
         }
     }
-    else
-    {
-        retVal.UpdateString("error", "Could not load resp->bodyStr() -> JsonObject");
-        retVal.UpdateString("message", "API error!");
-    }
     LOGD("retVal: %s", retVal.emit());
     return retVal.emit();
 }
 
-std::string WebAPI::getClone(const char *appName)
+std::string WebAPI::getClone()
 {
-    LOGD("appName: %s", toLowerCase(appName).data());
+    LOGD("");
     CkJsonObject retVal;
     retVal.put_Utf8(true);
     retVal.UpdateBool("success", false);
 
     CkJsonObject bodyData, response;
     bodyData.UpdateString("action", "GetClone");
-    bodyData.UpdateString("appname", toLowerCase(appName).data());
 
     if (sendRequest( __FUNCTION__, bodyData, response, "config"))
     {
@@ -1543,18 +1520,13 @@ std::string WebAPI::getClone(const char *appName)
             }
         }
     }
-    else
-    {
-        retVal.UpdateString("error", "Could not load resp->bodyStr() -> JsonObject");
-        retVal.UpdateString("message", "API error!");
-    }
     LOGD("retVal: %s", retVal.emit());
     return retVal.emit();
 }
 
-std::string WebAPI::getCloneInfo(const char *appName, const char *clone_info)
+std::string WebAPI::getCloneInfo(const char *clone_info)
 {
-    LOGD("appName: %s -- clone_info: %s", toLowerCase(appName).data(), clone_info);
+    LOGD("clone_info: %s", clone_info);
     CkJsonObject retVal;
     retVal.put_Utf8(true);
     retVal.UpdateBool("success", false);
@@ -1570,7 +1542,6 @@ std::string WebAPI::getCloneInfo(const char *appName, const char *clone_info)
 
     CkJsonObject bodyData, response;
     bodyData.UpdateString("action", "GetCloneInfo");
-    bodyData.UpdateString("appname", toLowerCase(appName).data());
     bodyData.UpdateString("clone_info", str.getString());
 
     if (sendRequest(__FUNCTION__ , bodyData, response, "config"))
@@ -1606,17 +1577,12 @@ std::string WebAPI::getCloneInfo(const char *appName, const char *clone_info)
             }
         }
     }
-    else
-    {
-        retVal.UpdateString("error", "Could not load resp->bodyStr() -> JsonObject");
-        retVal.UpdateString("message", "API error!");
-    }
 
     LOGD("retVal: %s", retVal.emit());
     return retVal.emit();
 }
 
-std::string WebAPI::getStoredClones(const char *appName)
+std::string WebAPI::getStoredClones()
 {
     LOGD("");
     CkJsonObject retVal;
@@ -1625,7 +1591,6 @@ std::string WebAPI::getStoredClones(const char *appName)
 
     CkJsonObject bodyData, response;
     bodyData.UpdateString("action", "GetStoredClones");
-    bodyData.UpdateString("appname", toLowerCase(appName).data());
 
     if (sendRequest(__FUNCTION__ , bodyData, response, "config"))
     {
@@ -1659,19 +1624,14 @@ std::string WebAPI::getStoredClones(const char *appName)
             }
         }
     }
-    else
-    {
-        retVal.UpdateString("error", "Could not load resp->bodyStr() -> JsonObject");
-        retVal.UpdateString("message", "API error!");
-    }
 
     LOGD("retVal: %s", retVal.emit());
     return retVal.emit();
 }
 
-std::string WebAPI::updateClone(const char * action, const char *appName, const char *cloneJsonPath)
+std::string WebAPI::updateClone(const char * action, const char *cloneJsonPath)
 {
-    LOGD("action: %s -- appName: %s -- cloneJsonPath: %s",action, toLowerCase(appName).data(), cloneJsonPath);
+    LOGD("action: %s -- cloneJsonPath: %s",action, cloneJsonPath);
     CkJsonObject retVal;
     retVal.put_Utf8(true);
     retVal.UpdateBool("success", false);
@@ -1687,7 +1647,6 @@ std::string WebAPI::updateClone(const char * action, const char *appName, const 
 
     CkJsonObject bodyData, response, cloneInfo;
     bodyData.UpdateString("action", action);
-    bodyData.UpdateString("appname", toLowerCase(appName).data());
     bodyData.UpdateString("clone_info", str.getString());
 
     if (sendRequest( __FUNCTION__ , bodyData, response, "config")) {
@@ -1720,10 +1679,6 @@ std::string WebAPI::updateClone(const char * action, const char *appName, const 
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
-    } else
-    {
-        retVal.UpdateString("error", "Could not load resp->bodyStr() -> JsonObject");
-        retVal.UpdateString("message", "API error!");
     }
 
     LOGD("retVal: %s", retVal.emit());
@@ -1770,9 +1725,13 @@ std::string WebAPI::doAction(const char *clone_id)
     return retVal.emit();
 }
 
-bool WebAPI::doResult(const char *clone_id, const char *dataJsonPath)
+std::string WebAPI::doResult(const char *clone_id, const char *dataJsonPath)
 {
     LOGD("clone_id: %s -- dataJsonPath: %s", clone_id, dataJsonPath);
+    CkJsonObject retVal;
+    retVal.put_Utf8(true);
+    retVal.UpdateBool("success", false);
+
     CkJsonObject bodyData, response, actionObj;
     bodyData.UpdateString("clone_id", clone_id);
     if (loadJson(actionObj,dataJsonPath))
@@ -1784,13 +1743,16 @@ bool WebAPI::doResult(const char *clone_id, const char *dataJsonPath)
         if (server_data)
         {
             if (server_data->HasMember("code")) {
-                return server_data->IntOf("code") == 200 ||
+                bool success = server_data->IntOf("code") == 200 ||
                         server_data->IntOf("code") == 400 ||
                         server_data->IntOf("code") == 401;
+                retVal.UpdateBool("success", success);
             }
         }
     }
-    return false;
+
+    LOGD("result: %s",retVal.emit());
+    return retVal.emit();
 }
 
 std::string WebAPI::getJasmineDefinitions()
@@ -1822,10 +1784,6 @@ std::string WebAPI::getJasmineDefinitions()
         {
             retVal.AddObjectCopyAt(-1, "error_message",response);
         }
-    }
-    else
-    {
-        retVal.AddObjectCopyAt(-1, "error_message",response);
     }
     LOGD("result: %s",retVal.emit());
     return retVal.emit();
@@ -1894,11 +1852,6 @@ std::string WebAPI::getHotmail()
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
-    }
-    else
-    {
-        retVal.UpdateString("error", "Could not load resp->bodyStr() -> JsonObject");
-        retVal.UpdateString("message", "API error!");
     }
 
     LOGD("retVal: %s", retVal.emit());
@@ -2017,7 +1970,7 @@ bool WebAPI::sendRequest(const char * caller, CkJsonObject &bodyData, CkJsonObje
     if (initState())
     {
         CkJsonObject deviceInfo;
-        if (loadJson(deviceInfo,m_deviceInfo.data())) {
+        if (loadJson(deviceInfo,deviceInfo2CKJson(m_deviceInfo).data())) {
             if(extraDeviceInfo) {
                 LOGD("extraDeviceInfo: %s", extraDeviceInfo);
                 CkJsonObject extraDeviceInfoObj;
@@ -2064,18 +2017,18 @@ bool WebAPI::sendRequest(const char * caller, CkJsonObject &bodyData, CkJsonObje
         http.SetRequestHeader("mobile-secret-key", md5(m_token).data());
 
         CkCert cert;
-        if(!getCert(cert,m_platform)) {
+        if(!getCert(cert, static_cast<WebAPI::E_SUPPORTED_PLATFORM>(m_deviceInfo.platform))) {
             LOGE("GetCert failed!");
-            response.UpdateString("error_message", "GetCert failed!");
+            response.UpdateString("error", "GetCert failed!");
         } else if(!http.SetSslClientCert(cert)) {
             LOGE("SetSslClientCert error: %s", http.lastErrorText());
-            response.UpdateString("error_message", "SetSslClientCert error!");
+            response.UpdateString("error", "SetSslClientCert error!");
         } else {
             LOGD("Apply certificate successfully!");
             CkHttpResponse *resp = http.PostJson(getUrlByAPI(api).data(), jsonReqBody.emit());
 
             if (!http.get_LastMethodSuccess()) {
-                response.UpdateString("error_message", http.lastErrorText());
+                response.UpdateString("error", http.lastErrorText());
             } else {
                 if (resp->bodyStr()) {
                     LOGD("BodyStr: %s", resp->bodyStr());
@@ -2132,26 +2085,23 @@ bool WebAPI::sendRequest(const char * caller, CkJsonObject &bodyData, CkJsonObje
                                     success = true;
                                 }
                             } else {
-                                response.UpdateString("error_message",
-                                                      "Could not get server_timestamp");
+                                response.UpdateString("error_message", "could not obtain server_timestamp");
                             }
                         } else {
-                            response.UpdateString("error_message", "Data field is not existed!");
+                            response.UpdateString("error", "\"data\" field don't existed!");
                         }
                     } else {
-                        response.UpdateString("error_message",
-                                              "Could not load resp->bodyStr() -> JsonObject");
+                        response.UpdateString("error", "Could not load response -> json");
+                        response.UpdateString("response", resp->bodyStr());
                     }
                 } else {
-                    response.UpdateString("error_message", "resp->bodyStr() is NULL");
+                    response.UpdateString("error", "response: NULL");
                 }
             }
             delete resp;
         }
-    }
-    else
-    {
-        response.UpdateString("error_message", "Init failure");
+    } else {
+        response.UpdateString("error", "Init WebAPI failed");
     }
     LOGD("response: %s", response.emit());
     return success;

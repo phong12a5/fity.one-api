@@ -12,6 +12,21 @@
 
 class CkJsonObject;
 
+typedef struct device_info{
+    int platform = 0;
+    char * device_id = nullptr;
+    char * app_version_name = nullptr;
+
+    device_info &operator=(device_info& obj) {
+        this->platform =  obj.platform;
+        device_id = new char[strlen(obj.device_id) + 1];
+        strcpy(this->device_id, obj.device_id);
+        app_version_name = new char[strlen(obj.app_version_name) + 1];
+        strcpy(this->app_version_name, obj.app_version_name);
+        return *this;
+    }
+} DEVICE_INFO;
+
 class WebAPI {
 private:
     WebAPI();
@@ -28,42 +43,242 @@ public:
     };
 
 
+    /** */
     static WebAPI* getInstance();
+
+    /**
+     * @author phong.dang
+     * @brief obtain lib version
+     * @return std::string
+     */
     static std::string version();
 
-    bool initWebAPIs(E_SUPPORTED_PLATFORM platform, const char * token, const char * deviceInfo);
+    /**
+     * @brief WebAPI must be initialized before using
+     *
+     * @param token
+     * @param deviceInfo -> example:
+    /// code
+    DEVICE_INFO deviceInfo;
+    deviceInfo.platform = WebAPI::PLATFORM_F_ANDROID;
+    deviceInfo.device_id = (char*)"123456789";
+    deviceInfo.app_version_name = (char*)"0.0.1";
+    /// code
+     * @return true
+     * @return false
+     */
+    bool initWebAPIs(const char * token, DEVICE_INFO& deviceInfo);
 
     // Config APIs
-    std::string upsertDevice(const char * extraDeviceInfo);
-    std::string updateDeviceInfo(const char * extraDeviceInfo);
+    /**
+     * @brief register this device to server, webapi is availble when this device is approved from website
+     *
+     * @param extraDeviceInfo: at present, this param is unused
+     * @return std::string
+     */
+    std::string upsertDevice(const char * extraDeviceInfo = nullptr);
+    /**
+     * @brief update status of this device to server
+     * NOTE: at present, this api is just for fun
+     * @param extraDeviceInfo: at present, this param is unused
+     * @return std::string
+     */
+    std::string updateDeviceInfo(const char * extraDeviceInfo = nullptr);
+    /**
+     * @brief Get the Configuration of this device from server
+     *
+     * @return std::string
+     */
     std::string getConfig();
-    std::string getClone(const char * appName);
-    std::string getCloneInfo(const char *appName, const char * clone_info);
-    std::string getStoredClones(const char *appName);
-    std::string updateClone(const char * action, const char *appName, const char * cloneJsonPath);
+    /**
+     * @brief Get the Clone live from server
+     *
+     * @return std::string
+     */
+    std::string getClone();
+    /**
+     * @brief Get the full Clone Info
+     *
+     * @param cloneJsonPath: example: cloneJsonPath: {
+            "alive_status": "stored",
+            "appname": "facebook",
+            "id": "614ca178658a2ec8c04e67ae",
+            "uid": "1000485734857394",
+            "password": "phong1994"
+        }
+     * @return std::string
+     */
+    std::string getCloneInfo(const char * cloneJsonPath);
+
+    /**
+     * @brief Get the Stored Clones in this device
+     *
+     * @return std::string
+     */
+    std::string getStoredClones();
+    /**
+     * @brief update clone info to server
+     *
+     * @param action
+     * @param cloneJsonPath: example: cloneJsonPath: {
+            "alive_status": "stored",
+            "appname": "facebook",
+            "id": "614ca178658a2ec8c04e67ae",
+            "uid": "1000485734857394",
+            "password": "phong1994"
+        }
+     * @return std::string
+     */
+    std::string updateClone(const char * action, const char * cloneJsonPath);
+
+    /**
+     * @brief Get the Jasmine Definitions object
+     * @note this api is only for f_phone
+     * @return std::string
+     */
     std::string getJasmineDefinitions();
+
+    /**
+     * @brief submit clone ids which will open:
+     * @example: stored clones:
+     *  clone1_JsonPath: {
+            "alive_status": "live",
+            "appname": "facebook",
+            "id": "614ca178658a2ec8c04e67ae",
+            "uid": "1000485734857394",
+            "password": "phong1994"
+        }
+        clone2_JsonPath: {
+            "alive_status": "live",
+            "appname": "facebook",
+            "id": "32483hfuty9823798hd234556345",
+            "uid": "1000485734857394",
+            "password": "phong1994"
+        }
+     * @example: submitActiveClones("[614ca178658a2ec8c04e67ae, 32483hfuty9823798hd234556345]");
+     * @param activeClones
+     * @return std::string
+     */
     std::string submitActiveClones(const char * activeClones);
 
     // Get actions APIs
+    /**
+     * @brief obtain actions for clone_id from server
+     * @example:
+        cloneJsonPath: {
+            "alive_status": "live",
+            "appname": "facebook",
+            "id": "614ca178658a2ec8c04e67ae",
+            "uid": "1000485734857394",
+            "password": "phong1994"
+        }
+     * @param clone_id: example: 614ca178658a2ec8c04e67ae
+     * @return std::string
+     */
     std::string doAction(const char * clone_id);
 
     // Submit Result APIs
-    bool doResult(const char * clone_id, const char * dataJsonPath);
+    /**
+     * @brief submit task status to server
+     * @example:
+        cloneJsonPath: {
+            "alive_status": "live",
+            "appname": "facebook",
+            "id": "614ca178658a2ec8c04e67ae",
+            "uid": "1000485734857394",
+            "password": "phong1994"
+        }
+     * @param clone_id : example: 614ca178658a2ec8c04e67ae
+     * @param dataJsonPath: example: {"service_code":"XXXXX", "action":"FeedLike"}
+     * @return std::string
+     */
+    std::string doResult(const char * clone_id, const char * dataJsonPath);
 
     // Dropbox APIs
+    /**
+     * @brief download file from dropbox
+     *
+     * @param pathFile : cloud file path
+     * @param savePath : local file path
+     * @return true if succeed | false if failed
+     */
     bool downloadFileFromDropbox(const char* pathFile, const char* savePath);
+    /**
+     * @brief Get the Folder Content in dropbox
+     *
+     * @param folderPath
+     * @return std::string
+     */
     std::string getFolderContent(const char * folderPath);
 
     // Hotmail APIs
+    /**
+     * @brief Get the Hotmail object
+     *
+     * @return std::string
+     */
     std::string getHotmail();
+
+    /**
+     * @brief Check hotmail live/died
+     *
+     * @param email
+     * @param password
+     * @return true
+     * @return false
+     */
     bool        checkLoginHotmail(std::string& email, std::string& password) const;
+
+    /**
+     * @brief Get the Facebook Code From CGB Domain Mail
+     *
+     * @param email
+     * @return std::string
+     */
     std::string getFacebookCodeFromCGBDomainMail(const char * email) const;
+    /**
+     * @brief Get the Tiktok Code From CGB Domain Mail
+     *
+     * @param email
+     * @return std::string
+     */
     std::string getTiktokCodeFromCGBDomainMail(const char * email) const;
+
+    /**
+     * @brief Get the Facebook Code From Hotmail
+     *
+     * @param email
+     * @param password
+     * @return std::string
+     */
     std::string getFacebookCodeFromHotmail(const char * email, const char * password) const;
+
+    /**
+     * @brief Get the Tiktok Code From Hotmail
+     *
+     * @param email
+     * @param password
+     * @return std::string
+     */
     std::string getTiktokCodeFromHotmail(const char * email, const char * password) const;
 
     //util
+    /**
+     * @brief obtain tOPT
+     *
+     * @param secretkey
+     * @return std::string
+     */
     static std::string tOTP(const char * secretkey);
+
+    /**
+     * @brief download file by quickly GET request
+     *
+     * @param url
+     * @param savedPath
+     * @return true
+     * @return false
+     */
     static bool downloadFile(std::string& url, const std::string& savedPath);
 
 
@@ -82,16 +297,15 @@ private:
     bool sendRequest(const char * caller, CkJsonObject& data, CkJsonObject& response, const char * api, const char * extraDeviceInfo = nullptr);
     std::string getCodeFromImap(const char * imapServer, int port, const char * mailBox, const char * fromName, const char* toEmail, const char * login_email, const char * login_password) const;
     std::string token() const;
-    std::string deviceInfo() const;
+    DEVICE_INFO deviceInfo() const;
     void pLog(int level, const char * TAG, const char * fmt, ...) const;
     static void pushLog2Server(const char* level, const char * TAG, const char * msg);
 
 private:
     bool m_initState;
     bool m_unlockState;
-    E_SUPPORTED_PLATFORM m_platform;
     std::string m_token;
-    std::string m_deviceInfo;
+    DEVICE_INFO m_deviceInfo;
     std::string m_dropBoxToken;
     std::string m_domain;
     std::list<std::string> m_existedPackagedList;
