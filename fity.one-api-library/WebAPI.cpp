@@ -1372,18 +1372,15 @@ std::string WebAPI::upsertDevice(const char * extraDeviceInfo) {
     CkJsonObject bodyData, response;
     bodyData.UpdateString("action", "Upsert");
 
-    if (sendRequest( __FUNCTION__ , bodyData, response, "config", extraDeviceInfo))
-    {
+    if (sendRequest( __FUNCTION__ , bodyData, response, "config", extraDeviceInfo)) {
         CkJsonObject *server_data = response.ObjectOf("data");
-        if (server_data)
-        {
-            if (server_data->HasMember("code") &&
-                (server_data->IntOf("code") == 200)) {
-                retVal.UpdateBool("success", true);
+        if (server_data) {
+            if (server_data->HasMember("code")) {
+                retVal.UpdateInt("code", server_data->IntOf("code"));
+                retVal.UpdateBool("success", server_data->IntOf("code") == 200);
             }
 
-            if (server_data->HasMember("message"))
-            {
+            if (server_data->HasMember("message")) {
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
@@ -1400,18 +1397,15 @@ std::string WebAPI::updateDeviceInfo(const char * extraDeviceInfo) {
     CkJsonObject bodyData, response;
     bodyData.UpdateString("action", "UpdateDeviceInfo");
 
-    if (sendRequest( __FUNCTION__ , bodyData, response, "config", extraDeviceInfo))
-    {
+    if (sendRequest( __FUNCTION__ , bodyData, response, "config", extraDeviceInfo)) {
         CkJsonObject *server_data = response.ObjectOf("data");
-        if (server_data)
-        {
-            if (server_data->HasMember("code") &&
-                (server_data->IntOf("code") == 200)) {
-                retVal.UpdateBool("success", true);
+        if (server_data) {
+            if (server_data->HasMember("code")) {
+                retVal.UpdateInt("code", server_data->IntOf("code"));
+                retVal.UpdateBool("success", server_data->IntOf("code") == 200);
             }
 
-            if (server_data->HasMember("message"))
-            {
+            if (server_data->HasMember("message")) {
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
@@ -1429,25 +1423,19 @@ std::string WebAPI::getConfig()
     CkJsonObject bodyData, response;
     bodyData.UpdateString("action", "GetConfig");
 
-    if (sendRequest( __FUNCTION__ ,bodyData, response, "config"))
-
-    {
+    if (sendRequest( __FUNCTION__ ,bodyData, response, "config")) {
         CkJsonObject *server_data = response.ObjectOf("data");
-        if (server_data)
-        {
-            if (server_data->HasMember("code") &&
-                (server_data->IntOf("code") == 200))
-            {
-                retVal.UpdateBool("success", true);
+        if (server_data) {
+            if (server_data->HasMember("code")) {
+                retVal.UpdateInt("code", server_data->IntOf("code"));
+                retVal.UpdateBool("success", server_data->IntOf("code") == 200);
             }
 
-            if (server_data->HasMember("version"))
-            {
+            if (server_data->HasMember("version")) {
                 retVal.UpdateString("version", server_data->stringOf("version"));
             }
 
-            if (server_data->HasMember("new_token"))
-            {
+            if (server_data->HasMember("new_token")) {
                 retVal.UpdateString("new_token", server_data->stringOf("new_token"));
             }
 
@@ -1455,7 +1443,7 @@ std::string WebAPI::getConfig()
                 const char *data = server_data->stringOf("data");
                 CkJsonObject configJson;
                 if (loadJson(configJson, data)) {
-                    retVal.AddObjectCopyAt(-1, "config", configJson);
+                    retVal.AddObjectCopyAt(-1, "data", configJson);
                     retVal.UpdateBool("success", true);
 
                     if (configJson.HasMember("dropboxaccesstoken")) {
@@ -1467,8 +1455,7 @@ std::string WebAPI::getConfig()
                 }
             }
 
-            if (server_data->HasMember("message"))
-            {
+            if (server_data->HasMember("message")) {
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
@@ -1487,20 +1474,16 @@ std::string WebAPI::getClone()
     CkJsonObject bodyData, response;
     bodyData.UpdateString("action", "GetClone");
 
-    if (sendRequest( __FUNCTION__, bodyData, response, "config"))
-    {
+    if (sendRequest( __FUNCTION__, bodyData, response, "config")) {
         CkJsonObject *server_data = response.ObjectOf("data");
-        if (server_data)
-        {
+        if (server_data)  {
             retVal.UpdateBool("success", true);
 
-            if (server_data->HasMember("code"))
-            {
+            if (server_data->HasMember("code")) {
                 retVal.UpdateInt("code", server_data->IntOf("code"));
             }
 
-            if (server_data->HasMember("data"))
-            {
+            if (server_data->HasMember("data")) {
                 std::string data = server_data->stringOf("data");
 
                 //decrypte password and 2fa
@@ -1510,12 +1493,11 @@ std::string WebAPI::getClone()
                 cloneInfoObj.put_Utf8(true);
                 if (loadJson(cloneInfoObj,data.data()))
                 {
-                    retVal.AddObjectCopyAt(-1, "cloneInfo", cloneInfoObj);
+                    retVal.AddObjectCopyAt(-1, "data", cloneInfoObj);
                 }
             }
 
-            if (server_data->HasMember("message"))
-            {
+            if (server_data->HasMember("message")) {
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
@@ -1544,20 +1526,16 @@ std::string WebAPI::getCloneInfo(const char *clone_info)
     bodyData.UpdateString("action", "GetCloneInfo");
     bodyData.UpdateString("clone_info", str.getString());
 
-    if (sendRequest(__FUNCTION__ , bodyData, response, "config"))
-    {
+    if (sendRequest(__FUNCTION__ , bodyData, response, "config")) {
         CkJsonObject *server_data = response.ObjectOf("data");
-        if (server_data)
-        {
+        if (server_data) {
             retVal.UpdateBool("success", true);
 
-            if (server_data->HasMember("code"))
-            {
+            if (server_data->HasMember("code")) {
                 retVal.UpdateInt("code", server_data->IntOf("code"));
             }
 
-            if (server_data->HasMember("data"))
-            {
+            if (server_data->HasMember("data")) {
                 std::string data = server_data->stringOf("data");
 
                 //decrypte password and 2fa
@@ -1565,14 +1543,12 @@ std::string WebAPI::getCloneInfo(const char *clone_info)
 
                 CkJsonObject cloneInfoObj;
                 cloneInfoObj.put_Utf8(true);
-                if (loadJson(cloneInfoObj,data.data()))
-                {
-                    retVal.AddObjectCopyAt(-1, "cloneInfo", cloneInfoObj);
+                if (loadJson(cloneInfoObj,data.data())) {
+                    retVal.AddObjectCopyAt(-1, "data", cloneInfoObj);
                 }
             }
 
-            if (server_data->HasMember("message"))
-            {
+            if (server_data->HasMember("message")) {
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
@@ -1592,34 +1568,28 @@ std::string WebAPI::getStoredClones()
     CkJsonObject bodyData, response;
     bodyData.UpdateString("action", "GetStoredClones");
 
-    if (sendRequest(__FUNCTION__ , bodyData, response, "config"))
-    {
+    if (sendRequest(__FUNCTION__ , bodyData, response, "config")) {
         CkJsonObject *server_data = response.ObjectOf("data");
-        if (server_data)
-        {
+        if (server_data) {
             retVal.UpdateBool("success", true);
 
-            if (server_data->HasMember("code"))
-            {
+            if (server_data->HasMember("code")) {
                 retVal.UpdateInt("code", server_data->IntOf("code"));
             }
 
-            if (server_data->HasMember("data"))
-            {
+            if (server_data->HasMember("data")) {
                 std::string data = server_data->stringOf("data");
 
                 CkJsonArray storedClones;
                 storedClones.put_Utf8(true);
-                if (storedClones.Load(data.data()))
-                {
-                    retVal.AddArrayCopyAt(-1, "stored_clones", storedClones);
+                if (storedClones.Load(data.data())) {
+                    retVal.AddArrayCopyAt(-1, "data", storedClones);
                 } else {
                     LOGE("Load data failed");
                 }
             }
 
-            if (server_data->HasMember("message"))
-            {
+            if (server_data->HasMember("message")) {
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
@@ -1653,14 +1623,12 @@ std::string WebAPI::updateClone(const char * action, const char *cloneJsonPath)
         CkJsonObject *server_data = response.ObjectOf("data");
         if (server_data) {
 
-            if (server_data->HasMember("code"))
-            {
+            if (server_data->HasMember("code")) {
                 retVal.UpdateBool("success", server_data->IntOf("code") == 200);
                 retVal.UpdateInt("code", server_data->IntOf("code"));
             }
 
-            if (server_data->HasMember("data"))
-            {
+            if (server_data->HasMember("data")) {
                 std::string data = server_data->stringOf("data");
 
                 //decrypte password and 2fa
@@ -1668,14 +1636,12 @@ std::string WebAPI::updateClone(const char * action, const char *cloneJsonPath)
 
                 CkJsonObject cloneInfoObj;
                 cloneInfoObj.put_Utf8(true);
-                if (loadJson(cloneInfoObj,data.data()))
-                {
-                    retVal.AddObjectCopyAt(-1, "cloneInfo", cloneInfoObj);
+                if (loadJson(cloneInfoObj,data.data())) {
+                    retVal.AddObjectCopyAt(-1, "data", cloneInfoObj);
                 }
             }
 
-            if (server_data->HasMember("message"))
-            {
+            if (server_data->HasMember("message")) {
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
@@ -1695,28 +1661,23 @@ std::string WebAPI::doAction(const char *clone_id)
     CkJsonObject bodyData, response;
     bodyData.UpdateString("clone_id", clone_id);
 
-    if (sendRequest( __FUNCTION__ , bodyData, response, "get-do-actions"))
-    {
+    if (sendRequest( __FUNCTION__ , bodyData, response, "get-do-actions")) {
         CkJsonObject *server_data = response.ObjectOf("data");
-        if (server_data)
-        {
-            if (server_data->HasMember("data"))
-            {
+        if (server_data) {
+            retVal.UpdateBool("success", true);
+
+            if (server_data->HasMember("data")) {
                 CkJsonArray actionsArr;
                 actionsArr.put_Utf8(true);
                 if(actionsArr.Load(server_data->stringOf("data")))
-                retVal.AddArrayCopyAt(-1, "actions", actionsArr);
+                retVal.AddArrayCopyAt(-1, "data", actionsArr);
             }
 
-            retVal.UpdateBool("success", true);
-
-            if (server_data->HasMember("code"))
-            {
+            if (server_data->HasMember("code")) {
                 retVal.UpdateInt("code", server_data->IntOf("code"));
             }
 
-            if (server_data->HasMember("message"))
-            {
+            if (server_data->HasMember("message")) {
                 retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
@@ -1737,16 +1698,16 @@ std::string WebAPI::doResult(const char *clone_id, const char *dataJsonPath)
     if (loadJson(actionObj,dataJsonPath))
         bodyData.AddObjectCopyAt(-1, "data", actionObj);
 
-    if (sendRequest( __FUNCTION__, bodyData, response, "do-result"))
-    {
+    if (sendRequest( __FUNCTION__, bodyData, response, "do-result")) {
         CkJsonObject *server_data = response.ObjectOf("data");
-        if (server_data)
-        {
+        if (server_data) {
             if (server_data->HasMember("code")) {
-                bool success = server_data->IntOf("code") == 200 ||
-                        server_data->IntOf("code") == 400 ||
-                        server_data->IntOf("code") == 401;
-                retVal.UpdateBool("success", success);
+                retVal.UpdateInt("code", server_data->IntOf("code"));
+                retVal.UpdateBool("success", server_data->IntOf("code") == 200 || server_data->IntOf("code") == 400 || server_data->IntOf("code") == 401);
+            }
+
+            if (server_data->HasMember("message")) {
+                retVal.UpdateString("message", server_data->stringOf("message"));
             }
         }
     }
@@ -1765,24 +1726,17 @@ std::string WebAPI::getJasmineDefinitions()
     CkJsonObject bodyData, response;
     bodyData.UpdateString("action", "GetJasmine");
 
-    if (sendRequest( __FUNCTION__, bodyData, response, "config"))
-    {
+    if (sendRequest( __FUNCTION__, bodyData, response, "config")) {
         CkJsonObject *server_data = response.ObjectOf("data");
-        if (server_data)
-        {
-            if (server_data->HasMember("data"))
-            {
+        if (server_data) {
+            if (server_data->HasMember("data")) {
                 CkJsonArray definitionArr;
                 definitionArr.put_Utf8(true);
                 if(definitionArr.Load(server_data->stringOf("data"))) {
                     retVal.UpdateBool("success", true);
-                    retVal.AddArrayCopyAt(-1, "definitions", definitionArr);
+                    retVal.AddArrayCopyAt(-1, "data", definitionArr);
                 }
             }
-        }
-        else
-        {
-            retVal.AddObjectCopyAt(-1, "error_message",response);
         }
     }
     LOGD("result: %s",retVal.emit());
@@ -1803,9 +1757,9 @@ std::string WebAPI::submitActiveClones(const char *activeClones)
     if (sendRequest( __FUNCTION__, bodyData, response, "config")) {
         CkJsonObject *server_data = response.ObjectOf("data");
         if (server_data) {
-            if (server_data->HasMember("code")
-                && (server_data->IntOf("code") == 200 || server_data->IntOf("code") == 400)) {
-                retVal.UpdateBool("success", true);
+            if (server_data->HasMember("code")) {
+                retVal.UpdateInt("code", server_data->IntOf("code"));
+                retVal.UpdateBool("success", server_data->IntOf("code") == 200 || server_data->IntOf("code") == 400);
             }
 
             if (server_data->HasMember("message")) {
@@ -1843,7 +1797,7 @@ std::string WebAPI::getHotmail()
                 emailObj.put_Utf8(true);
                 if (loadJson(emailObj,server_data->stringOf("data")))
                 {
-                    retVal.AddObjectCopyAt(-1, "email_object", emailObj);
+                    retVal.AddObjectCopyAt(-1, "data", emailObj);
                 }
             }
 
