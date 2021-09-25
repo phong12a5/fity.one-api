@@ -9,6 +9,8 @@
 #include <list>
 #include <map>
 #include <string.h>
+#include <iostream>
+#include "WebAPI_global.h"
 
 class CkJsonObject;
 
@@ -25,7 +27,7 @@ typedef struct device_info{
     }
 } DEVICE_INFO;
 
-class WebAPI {
+class WEBAPI_EXPORT WebAPI {
 private:
     WebAPI();
 
@@ -288,7 +290,6 @@ private:
     static const char * getKey();
     static const char * getIv();
     static bool unlockChilkat();
-    static bool makeDir(const char * folderName);
     bool encryptCloneInfo(std::string& cloneInfo);
     bool decryptCloneInfo(std::string& cloneInfo);
     bool sendRequest(const char * caller, CkJsonObject& data, CkJsonObject& response, const char * api, const char * extraDeviceInfo = nullptr);

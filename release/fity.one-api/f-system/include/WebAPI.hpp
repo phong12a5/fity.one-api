@@ -10,6 +10,7 @@
 #include <map>
 #include <string.h>
 #include <iostream>
+#include "WebAPI_global.h"
 
 class CkJsonObject;
 
@@ -26,7 +27,7 @@ typedef struct device_info{
     }
 } DEVICE_INFO;
 
-class WebAPI {
+class WEBAPI_EXPORT WebAPI {
 private:
     WebAPI();
 
