@@ -37,7 +37,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <fstream>
-#include <dirent.h>
 #include <CkBinData.h>
 #include <CkString.h>
 #include <CkRsa.h>
@@ -393,12 +392,12 @@ static bool getCert(CkCert& cert, WebAPI::E_SUPPORTED_PLATFORM platform) {
     return true;
 }
 
-std::string deviceInfo2CKJson(const DEVICE_INFO& device_info) {
+std::string deviceInfo2CKJson(const WebAPI::E_SUPPORTED_PLATFORM platform, const DEVICE_INFO& device_info) {
     CkJsonObject json;
     json.UpdateString("device_id",device_info.device_id);
     json.UpdateString("app_version_name",device_info.app_version_name);
 
-    switch (device_info.platform) {
+    switch (platform) {
     case WebAPI::PLATFORM_F_CARE:
         json.UpdateString("system","f_system");
         break;
@@ -426,629 +425,24 @@ std::string deviceInfo2CKJson(const DEVICE_INFO& device_info) {
 
 WebAPI::WebAPI()
 {
-    m_listKey.emplace_back("signInName");
-    m_listKey.emplace_back("uaid");
-    m_listKey.emplace_back("includeSuggestions");
-    m_listKey.emplace_back("uiflvr");
-    m_listKey.emplace_back("scid");
-    m_listKey.emplace_back("hpgid");
-    m_listKey.emplace_back("Signup_MemberNamePage_Client");
-    m_listKey.emplace_back("evts");
-    m_listKey.emplace_back("perf");
-    m_listKey.emplace_back("data");
-    m_listKey.emplace_back("navigation");
-    m_listKey.emplace_back("type");
-    m_listKey.emplace_back("redirectCount");
-    m_listKey.emplace_back("timing");
-    m_listKey.emplace_back("navigationStart");
-    m_listKey.emplace_back("unloadEventStart");
-    m_listKey.emplace_back("unloadEventEnd");
-    m_listKey.emplace_back("redirectStart");
-    m_listKey.emplace_back("redirectEnd");
-    m_listKey.emplace_back("fetchStart");
-    m_listKey.emplace_back("domainLookupStart");
-    m_listKey.emplace_back("domainLookupEnd");
-    m_listKey.emplace_back("connectStart");
-    m_listKey.emplace_back("connectEnd");
-    m_listKey.emplace_back("secureConnectionStart");
-    m_listKey.emplace_back("requestStart");
-    m_listKey.emplace_back("responseStart");
-    m_listKey.emplace_back("responseEnd");
-    m_listKey.emplace_back("domLoading");
-    m_listKey.emplace_back("domInteractive");
-    m_listKey.emplace_back("domContentLoadedEventStart");
-    m_listKey.emplace_back("domContentLoadedEventEnd");
-    m_listKey.emplace_back("domComplete");
-    m_listKey.emplace_back("loadEventStart");
-    m_listKey.emplace_back("loadEventEnd");
-    m_listKey.emplace_back("customLoadEventEnd");
-    m_listKey.emplace_back("entries");
-    m_listKey.emplace_back("name");
-    m_listKey.emplace_back("entryType");
-    m_listKey.emplace_back("startTime");
-    m_listKey.emplace_back("duration");
-    m_listKey.emplace_back("initiatorType");
-    m_listKey.emplace_back("nextHopProtocol");
-    m_listKey.emplace_back("workerStart");
-    m_listKey.emplace_back("transferSize");
-    m_listKey.emplace_back("encodedBodySize");
-    m_listKey.emplace_back("decodedBodySize");
-    m_listKey.emplace_back("serverTiming");
-    m_listKey.emplace_back("navigate");
-    m_listKey.emplace_back("resource");
-    m_listKey.emplace_back("link");
-    m_listKey.emplace_back("script");
-    m_listKey.emplace_back("h2");
-    m_listKey.emplace_back("img");
-    m_listKey.emplace_back("css");
-    m_listKey.emplace_back("first");
-    m_listKey.emplace_back("paint");
-    m_listKey.emplace_back("contentful");
-    m_listKey.emplace_back("connection");
-    m_listKey.emplace_back("onchange");
-    m_listKey.emplace_back("effectiveType");
-    m_listKey.emplace_back("3g");
-    m_listKey.emplace_back("rtt");
-    m_listKey.emplace_back("downlink");
-    m_listKey.emplace_back("saveData");
-    m_listKey.emplace_back("tm");
-    m_listKey.emplace_back("cm");
-    m_listKey.emplace_back("tcxt");
-    m_listKey.emplace_back("cntry");
-    m_listKey.emplace_back("svr");
-    m_listKey.emplace_back("dc");
-    m_listKey.emplace_back("westus2");
-    m_listKey.emplace_back("ri");
-    m_listKey.emplace_back("wusXXXX000H");
-    m_listKey.emplace_back("ver");
-    m_listKey.emplace_back("v");
-    m_listKey.emplace_back("rt");
-    m_listKey.emplace_back("et");
-    m_listKey.emplace_back("hst");
-    m_listKey.emplace_back("signup");
-    m_listKey.emplace_back("live");
-    m_listKey.emplace_back("com");
-    m_listKey.emplace_back("nt");
-    m_listKey.emplace_back("av");
-    m_listKey.emplace_back("pageApiId");
-    m_listKey.emplace_back("clientDetails");
-    m_listKey.emplace_back("country");
-    m_listKey.emplace_back("userAction");
-    m_listKey.emplace_back("source");
-    m_listKey.emplace_back("PageView");
-    m_listKey.emplace_back("clientTelemetryData");
-    m_listKey.emplace_back("category");
-    m_listKey.emplace_back("PageLoad");
-    m_listKey.emplace_back("pageName");
-    m_listKey.emplace_back("Signup_MemberNamePage");
-    m_listKey.emplace_back("eventInfo");
-    m_listKey.emplace_back("timestamp");
-    m_listKey.emplace_back("perceivedPlt");
-    m_listKey.emplace_back("networkLatency");
-    m_listKey.emplace_back("appVersion");
-    m_listKey.emplace_back("networkType");
-    m_listKey.emplace_back("precaching");
-    m_listKey.emplace_back("bundleVersion");
-    m_listKey.emplace_back("deviceYear");
-    m_listKey.emplace_back("isMaster");
-    m_listKey.emplace_back("bundleHits");
-    m_listKey.emplace_back("bundleMisses");
-    m_listKey.emplace_back("btData");
-    m_listKey.emplace_back("cxhFunctionRes");
-    m_listKey.emplace_back("Signup_PasswordPage_Client");
-    m_listKey.emplace_back("Signup_PasswordPage");
-    m_listKey.emplace_back("Signup_ProfileAccrualPage_Client");
-    m_listKey.emplace_back("Action_ClientSideTelemetry");
-    m_listKey.emplace_back("Signup_ProfileAccrualPage");
-    m_listKey.emplace_back("Signup_BirthdatePage_Client");
-    m_listKey.emplace_back("Signup_BirthdatePage");
-    m_listKey.emplace_back("Signup_HipPage_Client");
-    m_listKey.emplace_back("Signup_HipPage");
-    m_listKey.emplace_back("Timestamp");
-    m_listKey.emplace_back("Timezone");
-    m_listKey.emplace_back("PostStartTime");
-    m_listKey.emplace_back("SessionID");
-    m_listKey.emplace_back("PartnerId");
-    m_listKey.emplace_back("Events");
-    m_listKey.emplace_back("at");
-    m_listKey.emplace_back("keydown");
-    m_listKey.emplace_back("tid");
-    m_listKey.emplace_back("MemberName");
-    m_listKey.emplace_back("s");
-    m_listKey.emplace_back("k");
-    m_listKey.emplace_back("keyup");
-    m_listKey.emplace_back("SubmitIndex");
-    m_listKey.emplace_back("Browser");
-    m_listKey.emplace_back("UserAgent");
-    m_listKey.emplace_back("CookieEnabled");
-    m_listKey.emplace_back("JavaEnabled");
-    m_listKey.emplace_back("ScreenDepth");
-    m_listKey.emplace_back("ScreenHeight");
-    m_listKey.emplace_back("ScreenWidth");
-    m_listKey.emplace_back("WindowHeight");
-    m_listKey.emplace_back("WindowWidth");
-    m_listKey.emplace_back("PageHeight");
-    m_listKey.emplace_back("PageWidth");
-    m_listKey.emplace_back("Language");
-    m_listKey.emplace_back("Plugins");
-    m_listKey.emplace_back("mousemove");
-    m_listKey.emplace_back("dx");
-    m_listKey.emplace_back("dy");
-    m_listKey.emplace_back("x");
-    m_listKey.emplace_back("y");
-    m_listKey.emplace_back("click");
-    m_listKey.emplace_back("LastName");
-    m_listKey.emplace_back("b");
-    m_listKey.emplace_back("focus");
-    m_listKey.emplace_back("FirstName");
-    m_listKey.emplace_back("CheckAvailStateMap");
-    m_listKey.emplace_back("dajdfjoaiejrwer2342");
-    m_listKey.emplace_back("hotmail");
-    m_listKey.emplace_back("undefined");
-    m_listKey.emplace_back("EvictionWarningShown");
-    m_listKey.emplace_back("UpgradeFlowToken");
-    m_listKey.emplace_back("MemberNameChangeCount");
-    m_listKey.emplace_back("MemberNameAvailableCount");
-    m_listKey.emplace_back("MemberNameUnavailableCount");
-    m_listKey.emplace_back("CipherValue");
-    m_listKey.emplace_back("SKI");
-    m_listKey.emplace_back("BirthDate");
-    m_listKey.emplace_back("Country");
-    m_listKey.emplace_back("IsOptOutEmailDefault");
-    m_listKey.emplace_back("IsOptOutEmailShown");
-    m_listKey.emplace_back("IsOptOutEmail");
-    m_listKey.emplace_back("LW");
-    m_listKey.emplace_back("SiteId");
-    m_listKey.emplace_back("IsRDM");
-    m_listKey.emplace_back("WReply");
-    m_listKey.emplace_back("ReturnUrl");
-    m_listKey.emplace_back("SignupReturnUrl");
-    m_listKey.emplace_back("SuggestedAccountType");
-    m_listKey.emplace_back("OUTLOOK");
-    m_listKey.emplace_back("SuggestionType");
-    m_listKey.emplace_back("Locked");
-    m_listKey.emplace_back("HFId");
-    m_listKey.emplace_back("HType");
-    m_listKey.emplace_back("visual");
-    m_listKey.emplace_back("HSId");
-    m_listKey.emplace_back("HId");
-    m_listKey.emplace_back("HSol");
-    m_listKey.emplace_back("acctcdn");
-    m_listKey.emplace_back("hrcdn");
-    m_listKey.emplace_back("vendor");
-    m_listKey.emplace_back("common");
-    m_listKey.emplace_back("pageLoadTime");
-    m_listKey.emplace_back("msauth");
-    m_listKey.emplace_back("acctcdnmsftuswe");
-    m_listKey.emplace_back("FSSFZE");
-    m_listKey.emplace_back("acctcdnvzeuno");
-    m_listKey.emplace_back("device");
-    m_listKey.emplace_back("DataRequest");
-    m_listKey.emplace_back("fbundle");
-    m_listKey.emplace_back("isProxy");
-    m_listKey.emplace_back("OLfvCcbv");
-    m_listKey.emplace_back("time_ms");
-    m_listKey.emplace_back("WSQWA");
-    m_listKey.emplace_back("hipTemplate");
-    m_listKey.emplace_back("watsonestoppel");
-    m_listKey.emplace_back("douglascrockford");
-    m_listKey.emplace_back("ufeff");
-    m_listKey.emplace_back("clientTelemetry");
-    m_listKey.emplace_back("TimestampSecret");
-    m_listKey.emplace_back("amtcxt");
-    m_listKey.emplace_back("UnauthSessionId");
-    m_listKey.emplace_back("Auryc");
-    m_listKey.emplace_back("TelemetryContext");
-    m_listKey.emplace_back("ApiRequest");
-    m_listKey.emplace_back("MLuaF");
-    m_listKey.emplace_back("ApiCall");
-    m_listKey.emplace_back("LGseWNAB");
-    m_listKey.emplace_back("responseText");
-    m_listKey.emplace_back("credentials");
-    m_listKey.emplace_back("trackDwellTime");
-    m_listKey.emplace_back("HUBM");
-    m_listKey.emplace_back("ResponseHeader");
-    m_listKey.emplace_back("apiUseIpt");
-    m_listKey.emplace_back("SKHD");
-    m_listKey.emplace_back("correlationId");
-    m_listKey.emplace_back("wlPreferIpt");
-    m_listKey.emplace_back("hxRSU");
-    m_listKey.emplace_back("view_time");
-    m_listKey.emplace_back("apiCanary");
-    m_listKey.emplace_back("DCZLE");
-    m_listKey.emplace_back("WLXAccount");
-    m_listKey.emplace_back("ClientPerf");
-    m_listKey.emplace_back("batchTrack");
-    m_listKey.emplace_back("sessionId");
-    m_listKey.emplace_back("TsGr");
-    m_listKey.emplace_back("cxhFunction");
-    m_listKey.emplace_back("pageId");
-    m_listKey.emplace_back("Qfrac");
-    m_listKey.emplace_back("wutPOWE");
-    m_listKey.emplace_back("UBQTR");
-    m_listKey.emplace_back("TelemetryResourceBundle");
-    m_listKey.emplace_back("ApiId");
-    m_listKey.emplace_back("major");
-    m_listKey.emplace_back("scuXXXX");
-    m_listKey.emplace_back("facctcdnmsftuswe");
-    m_listKey.emplace_back("XQZS");
-    m_listKey.emplace_back("marchingAnts");
-    m_listKey.emplace_back("GX");
-    m_listKey.emplace_back("pwdless");
-    m_listKey.emplace_back("TimeLoad");
-    m_listKey.emplace_back("fclient");
-    m_listKey.emplace_back("KGZU");
-    m_listKey.emplace_back("fSessionID");
-    m_listKey.emplace_back("UFE");
-    m_listKey.emplace_back("ValidationBehavior");
-    m_listKey.emplace_back("fservices");
-    m_listKey.emplace_back("cnvCtrlBg");
-    m_listKey.emplace_back("facctcdnvzeuno");
-    m_listKey.emplace_back("ffwlink");
-    m_listKey.emplace_back("EBZWQ");
-    m_listKey.emplace_back("fLinkID");
-    m_listKey.emplace_back("permission");
-    m_listKey.emplace_back("JANR");
-    m_listKey.emplace_back("memberNameType");
-    m_listKey.emplace_back("EASI");
-    m_listKey.emplace_back("CXH");
-    m_listKey.emplace_back("IDPS");
-    m_listKey.emplace_back("UnifiedHeader");
-    m_listKey.emplace_back("CXHMBinary");
-    m_listKey.emplace_back("YXVM");
-    m_listKey.emplace_back("TimeClick");
-    m_listKey.emplace_back("NASAKH");
-    m_listKey.emplace_back("mktLocale");
-    m_listKey.emplace_back("converged");
-    m_listKey.emplace_back("msweb");
-    m_listKey.emplace_back("messageHandle");
-    m_listKey.emplace_back("SessionStorage");
-    m_listKey.emplace_back("WizardExternal");
-    m_listKey.emplace_back("VBCFZ");
-    m_listKey.emplace_back("lwsignup");
-    m_listKey.emplace_back("lrmen");
-    m_listKey.emplace_back("iPageElt");
-    m_listKey.emplace_back("GCPpM");
-    m_listKey.emplace_back("hipContent");
-    m_listKey.emplace_back("BNAX");
-    m_listKey.emplace_back("TimePressed");
-    m_listKey.emplace_back("CBU");
-    m_listKey.emplace_back("signupTemplates");
-    m_listKey.emplace_back("ESKN");
-    m_listKey.emplace_back("DeviceTicket");
-    m_listKey.emplace_back("FVE");
-    m_listKey.emplace_back("fieldset");
-    m_listKey.emplace_back("dropdownCaret");
-    m_listKey.emplace_back("ariaLblCountry");
-    m_listKey.emplace_back("easiSwitch");
-    m_listKey.emplace_back("CTKGLIg");
-    m_listKey.emplace_back("associate");
-    m_listKey.emplace_back("Tfmuw");
-    m_listKey.emplace_back("MembernamePasswordProfile");
-    m_listKey.emplace_back("MembernameEn");
-    m_listKey.emplace_back("lblNewPwd");
-    m_listKey.emplace_back("WMUDW");
-    m_listKey.emplace_back("lblVerification");
-    m_listKey.emplace_back("hipDesc");
-    m_listKey.emplace_back("LAUC");
-    m_listKey.emplace_back("Whoops");
-    m_listKey.emplace_back("fmicrosoft");
-    m_listKey.emplace_back("prefetchPlt");
-    m_listKey.emplace_back("phantom");
-    m_listKey.emplace_back("gk2_exposure");
-    m_listValue.emplace_back("ThermalHAL-UTIL");
-    m_listValue.emplace_back("ActivityManager");
-    m_listValue.emplace_back("[07_05_01_35_30530]");
-    m_listValue.emplace_back("getTaskSnapshot");
-    m_listValue.emplace_back("ActivityRecordf9f2944");
-    m_listValue.emplace_back("19690comgoogleandroidinputmethodlatintrainu0a79");
-    m_listValue.emplace_back("comgoogleandroidgmsautofillserviceAutofillService");
-    m_listValue.emplace_back("androidappIntentReceiverLeaked");
-    m_listValue.emplace_back("androidappLoadedApk$ReceiverDispatcher<init>LoadedApkjava1429");
-    m_listValue.emplace_back("androidappLoadedApkgetReceiverDispatcherLoadedApkjava1210");
-    m_listValue.emplace_back("androidappContextImplregisterReceiverInternalContextImpljava1476");
-    m_listValue.emplace_back("androidappContextImplregisterReceiverContextImpljava1449");
-    m_listValue.emplace_back("androidappContextImplregisterReceiverContextImpljava1437");
-    m_listValue.emplace_back("androidcontentContextWrapperregisterReceiverContextWrapperjava623");
-    m_listValue.emplace_back("lje<init>comgoogleandroidgms@201515026@201515");
-    m_listValue.emplace_back("lht<init>comgoogleandroidgms@201515026@201515");
-    m_listValue.emplace_back("kwiacomgoogleandroidgms@201515026@201515");
-    m_listValue.emplace_back("cbazacomgoogleandroidgms@201515026@201515");
-    m_listValue.emplace_back("kwqacomgoogleandroidgms@201515026@201515");
-    m_listValue.emplace_back("100306-3067585863");
-    m_listValue.emplace_back("kutbcomgoogleandroidgms@201515026@201515");
-    m_listValue.emplace_back("ldzonFillRequestcomgoogleandroidgms@201515026@201515");
-    m_listValue.emplace_back("androidserviceautofill-$$Lambda$I0gCKFrBTO70VZfSZTq2fj-wyG8acceptUnknown");
-    m_listValue.emplace_back("comandroidinternalutilfunctionpooledPooledLambdaImpldoInvokePooledLambdaImpljava287");
-    m_listValue.emplace_back("comandroidinternalutilfunctionpooledPooledLambdaImplinvokePooledLambdaImpljava182");
-    m_listValue.emplace_back("comandroidinternalutilfunctionpooledOmniFunctionrunOmniFunctionjava77");
-    m_listValue.emplace_back("androidosHandlerhandleCallbackHandlerjava873");
-    m_listValue.emplace_back("androidosHandlerdispatchMessageHandlerjava99");
-    m_listValue.emplace_back("androidosLooperloopLooperjava193");
-    m_listValue.emplace_back("androidappActivityThreadmainActivityThreadjava6746");
-    m_listValue.emplace_back("javalangreflectMethodinvokeNative");
-    m_listValue.emplace_back("comandroidinternalosRuntimeInit$MethodAndArgsCallerrunRuntimeInitjava493");
-    m_listValue.emplace_back("comandroidinternalosZygoteInitmainZygoteInitjava858");
-    m_listValue.emplace_back("actandroidintentactionMAIN");
-    m_listValue.emplace_back("cat[androidintentcategoryLAUNCHER]");
-    m_listValue.emplace_back("xyzautofarmerapp");
-    m_listValue.emplace_back("xyzautofarmerappxyzautofarmerappMainActivity");
-    m_listValue.emplace_back("ProcessCpuTracker");
-    m_listValue.emplace_back("xyzautofarmerappMainActivity");
-    m_listValue.emplace_back("19534xyzautofarmerapp");
-    m_listValue.emplace_back("1205system_server");
-    m_listValue.emplace_back("641mediacodec");
-    m_listValue.emplace_back("1578comandroidsystemui");
-    m_listValue.emplace_back("1760comandroidphone");
-    m_listValue.emplace_back("1569comgoogleandroidinputmethodlatin");
-    m_listValue.emplace_back("465androidhardwaresensors@10-service");
-    m_listValue.emplace_back("1726dataservices");
-    m_listValue.emplace_back("2170comqualcommqtiservicessecureuisui_service");
-    m_listValue.emplace_back("19451kworkeru86");
-    m_listValue.emplace_back("1745comqualcommqtitelephonyservice");
-    m_listValue.emplace_back("2157comandroidse");
-    m_listValue.emplace_back("593mediaextractor");
-    m_listValue.emplace_back("19448kworkeru84");
-    m_listValue.emplace_back("2268comgoogleandroidgmspersistent");
-    m_listValue.emplace_back("273mmc-cmdqd0");
-    m_listValue.emplace_back("357hwservicemanager");
-    m_listValue.emplace_back("427adsp_IPCRTR");
-    m_listValue.emplace_back("460androidhardwaregraphicscomposer@21-service");
-    m_listValue.emplace_back("490surfaceflinger");
-    m_listValue.emplace_back("11862kworkeru82");
-    m_listValue.emplace_back("31926kworker05");
-    m_listValue.emplace_back("450androidhardwareaudio@20-service");
-    m_listValue.emplace_back("487audioserver");
-    m_listValue.emplace_back("608mediametrics");
-    m_listValue.emplace_back("640androidhardwarecameraprovider@24-service");
-    m_listValue.emplace_back("2393comgoogleandroidgms");
-    m_listValue.emplace_back("9411comandroidsettings");
-    m_listValue.emplace_back("15319comfacebookkatani");
-    m_listValue.emplace_back("15473comfacebookkatani_43472e33-1a1c-69c1-aece-1488c79a8af3txt");
-    m_listValue.emplace_back("18851comgoogleandroidyoutube");
-    m_listValue.emplace_back("19534autofarmerapp");
-    m_listValue.emplace_back("ProcessRecordb1da96c");
-    m_listValue.emplace_back("actandroidintentactionDROPBOX_ENTRY_ADDED");
-    m_listValue.emplace_back("comgoogleandroidgmschimeraGmsIntentOperationService$PersistentTrustedReceiver");
-    m_listValue.emplace_back("Type0avg38612614min37307003max40602");
-    m_listValue.emplace_back("[07_05_01_36_00533]");
-    m_listValue.emplace_back("[07_05_01_36_30537]");
-    m_listValue.emplace_back("[07_05_01_37_00541]");
-    m_listValue.emplace_back("[07_05_01_37_30545]");
-    m_listValue.emplace_back("[07_05_01_38_00547]");
-    m_listValue.emplace_back("[07_05_01_38_30550]");
-    m_listValue.emplace_back("[07_05_01_39_00553]");
-    m_listValue.emplace_back("[07_05_01_39_30556]");
-    m_listValue.emplace_back("[07_05_01_40_00559]");
-    m_listValue.emplace_back("UsageStatsService");
-    m_listValue.emplace_back("[07_05_01_40_30562]");
-    m_listValue.emplace_back("[07_05_01_41_00567]");
-    m_listValue.emplace_back("[07_05_01_41_30570]");
-    m_listValue.emplace_back("[07_05_01_42_00573]");
-    m_listValue.emplace_back("eventTime81759161");
-    m_listValue.emplace_back("PowerManagerService");
-    m_listValue.emplace_back("DisplayPowerController");
-    m_listValue.emplace_back("KernelCpuSpeedReader");
-    m_listValue.emplace_back("KernelUidCpuTimeReader");
-    m_listValue.emplace_back("DisplayManagerService");
-    m_listValue.emplace_back("PowerManagerServiceDisplay");
-    m_listValue.emplace_back("DreamManagerService");
-    m_listValue.emplace_back("DreamController");
-    m_listValue.emplace_back("tagDreamManagerService");
-    m_listValue.emplace_back("PowerManagerServiceBroadcasts");
-    m_listValue.emplace_back("KeyguardStatusView");
-    m_listValue.emplace_back("KeyguardDisplayManager");
-    m_listValue.emplace_back("ActivityRecord326bf9");
-    m_listValue.emplace_back("[07_05_01_42_30576]");
-    m_listValue.emplace_back("[07_05_01_43_00579]");
-    m_listValue.emplace_back("ConnectivityService");
-    m_listValue.emplace_back("INTERNET&NOT_RESTRICTED&TRUSTED");
-    m_listValue.emplace_back("[07_05_01_43_30582]");
-    m_listValue.emplace_back("[07_05_01_44_00585]");
-    m_listValue.emplace_back("[07_05_01_44_30588]");
-    m_listValue.emplace_back("[07_05_01_45_00591]");
-    m_listValue.emplace_back("comgoogleandroidgmsstatsserviceDropBoxEntryAddedReceiver");
-    m_listValue.emplace_back("[07_05_01_45_30594]");
-    m_listValue.emplace_back("[07_05_01_46_00597]");
-    m_listValue.emplace_back("[07_05_01_46_30600]");
-    m_listValue.emplace_back("[07_05_01_47_00603]");
-    m_listValue.emplace_back("[07_05_01_47_30606]");
-    m_listValue.emplace_back("[07_05_01_48_00609]");
-    m_listValue.emplace_back("[07_05_01_48_30612]");
-    m_listValue.emplace_back("[07_05_01_49_00615]");
-    m_listValue.emplace_back("[07_05_01_49_30618]");
-    m_listValue.emplace_back("[07_05_01_50_00621]");
-    m_listValue.emplace_back("[07_05_01_50_30624]");
-    m_listValue.emplace_back("[07_05_01_51_00627]");
-    m_listValue.emplace_back("Type0avg36651897min34141003max39285004");
-    m_listValue.emplace_back("[07_05_01_51_30630]");
-    m_listValue.emplace_back("[07_05_01_52_00633]");
-    m_listValue.emplace_back("[07_05_01_52_30636]");
-    m_listValue.emplace_back("[07_05_01_53_00639]");
-    m_listValue.emplace_back("[07_05_01_53_30642]");
-    m_listValue.emplace_back("[07_05_01_54_00645]");
-    m_listValue.emplace_back("[07_05_01_54_30648]");
-    m_listValue.emplace_back("[07_05_01_55_00651]");
-    m_listValue.emplace_back("[07_05_01_55_30654]");
-    m_listValue.emplace_back("[07_05_01_56_00657]");
-    m_listValue.emplace_back("[07_05_01_56_30660]");
-    m_listValue.emplace_back("[07_05_01_57_00663]");
-    m_listValue.emplace_back("24376comgoogleandroidgmssnetu0a15");
-    m_listValue.emplace_back("24415comgoogleandroidmusicmainu0a62");
-    m_listValue.emplace_back("24428comvinsmartcontactsu0a16");
-    m_listValue.emplace_back("comgoogleandroidappsphotos");
-    m_listValue.emplace_back("ProcessRecorddf324a1");
-    m_listValue.emplace_back("NotificationService");
-    m_listValue.emplace_back("6484comandroidproviderscalendaru0a13");
-    m_listValue.emplace_back("[07_05_01_57_30666]");
-    m_listValue.emplace_back("[07_05_01_58_00670]");
-    m_listValue.emplace_back("[07_05_01_58_30673]");
-    m_listValue.emplace_back("[07_05_01_59_00675]");
-    m_listValue.emplace_back("BatteryExternalStatsWorker");
-    m_listValue.emplace_back("sysdevicessystemcpucpu0cpufreqstatstime_in_state");
-    m_listValue.emplace_back("[07_05_01_59_30678]");
-    m_listValue.emplace_back("[07_05_02_00_00681]");
-    m_listValue.emplace_back("[07_05_02_00_30684]");
-    m_listValue.emplace_back("[07_05_02_01_00687]");
-    m_listValue.emplace_back("[07_05_02_01_30690]");
-    m_listValue.emplace_back("[07_05_02_02_00693]");
-    m_listValue.emplace_back("[07_05_02_02_30696]");
-    m_listValue.emplace_back("[07_05_02_03_00699]");
-    m_listValue.emplace_back("[07_05_02_03_30702]");
-    m_listValue.emplace_back("[07_05_02_04_00705]");
-    m_listValue.emplace_back("[07_05_02_04_30708]");
-    m_listValue.emplace_back("[07_05_02_05_00711]");
-    m_listValue.emplace_back("[07_05_02_05_30715]");
-    m_listValue.emplace_back("uidpid1008511774");
-    m_listValue.emplace_back("uidpid1008111799");
-    m_listValue.emplace_back("[07_05_02_06_00718]");
-    m_listValue.emplace_back("[07_05_02_06_30721]");
-    m_listValue.emplace_back("Type0avg33470116min3308max34141003");
-    m_listValue.emplace_back("[07_05_02_07_00724]");
-    m_listValue.emplace_back("[07_05_02_07_30727]");
-    m_listValue.emplace_back("[07_05_02_08_00730]");
-    m_listValue.emplace_back("[07_05_02_08_30733]");
-    m_listValue.emplace_back("[07_05_02_09_00736]");
-    m_listValue.emplace_back("[07_05_02_09_30739]");
-    m_listValue.emplace_back("[07_05_02_10_00742]");
-    m_listValue.emplace_back("[07_05_02_10_30745]");
-    m_listValue.emplace_back("[07_05_02_11_00748]");
-    m_listValue.emplace_back("[07_05_02_11_30751]");
-    m_listValue.emplace_back("[07_05_02_12_00754]");
-    m_listValue.emplace_back("[07_05_02_12_30757]");
-    m_listValue.emplace_back("[07_05_02_13_00760]");
-    m_listValue.emplace_back("[07_05_02_13_30763]");
-    m_listValue.emplace_back("[07_05_02_14_00766]");
-    m_listValue.emplace_back("[07_05_02_14_30769]");
-    m_listValue.emplace_back("[07_05_02_15_00772]");
-    m_listValue.emplace_back("[07_05_02_15_30775]");
-    m_listValue.emplace_back("[07_05_02_16_00778]");
-    m_listValue.emplace_back("[07_05_02_16_30781]");
-    m_listValue.emplace_back("[07_05_02_17_00784]");
-    m_listValue.emplace_back("[07_05_02_17_30787]");
-    m_listValue.emplace_back("[07_05_02_18_00790]");
-    m_listValue.emplace_back("[07_05_02_18_30793]");
-    m_listValue.emplace_back("[07_05_02_19_00796]");
-    m_listValue.emplace_back("[07_05_02_19_30799]");
-    m_listValue.emplace_back("[07_05_02_20_00802]");
-    m_listValue.emplace_back("[07_05_02_20_30805]");
-    m_listValue.emplace_back("[07_05_02_21_00808]");
-    m_listValue.emplace_back("[07_05_02_21_30811]");
-    m_listValue.emplace_back("[07_05_02_22_00814]");
-    m_listValue.emplace_back("[07_05_02_22_30817]");
-    m_listValue.emplace_back("Type0avg33133076min33030003max33383003");
-    m_listValue.emplace_back("[07_05_02_23_00820]");
-    m_listValue.emplace_back("[07_05_02_23_30823]");
-    m_listValue.emplace_back("[07_05_02_24_00826]");
-    m_listValue.emplace_back("[07_05_02_24_30829]");
-    m_listValue.emplace_back("[07_05_02_25_00832]");
-    m_listValue.emplace_back("[07_05_02_25_30835]");
-    m_listValue.emplace_back("[07_05_02_26_00838]");
-    m_listValue.emplace_back("[07_05_02_26_30841]");
-    m_listValue.emplace_back("[07_05_02_27_00844]");
-    m_listValue.emplace_back("[07_05_02_27_30847]");
-    m_listValue.emplace_back("[07_05_02_28_00850]");
-    m_listValue.emplace_back("[07_05_02_28_30853]");
-    m_listValue.emplace_back("[07_05_02_29_00856]");
-    m_listValue.emplace_back("[07_05_02_29_30859]");
-    m_listValue.emplace_back("[07_05_02_30_00862]");
-    m_listValue.emplace_back("[07_05_02_30_30865]");
-    m_listValue.emplace_back("31768comfacebookkatanku0a139");
-    m_listValue.emplace_back("actcomfacebookmessagingipcpeersPROD");
-    m_listValue.emplace_back("comfacebookkatank");
-    m_listValue.emplace_back("[07_05_02_31_00868]");
-    m_listValue.emplace_back("actcomfacebookprofiloMAIN_PROCESS_STARTED_V4");
-    m_listValue.emplace_back("6547comandroidchromeu0a61");
-    m_listValue.emplace_back("NetworkRequestInfo");
-    m_listValue.emplace_back("binderDiedNetworkRequest");
-    m_listValue.emplace_back("androidosBinderProxy@b198850");
-    m_listValue.emplace_back("comgoogleandroidappsmessaging");
-    m_listValue.emplace_back("comfacebookpermissionprodFB_APP_COMMUNICATION");
-    m_listValue.emplace_back("BroadcastFilteree52623");
-    m_listValue.emplace_back("cmpcomfacebookkatankcomfacebookmqttliteMqttService");
-    m_listValue.emplace_back("hcomandroidservernotificationNotificationManagerService$WorkerHandler");
-    m_listValue.emplace_back("actX2KCNETWORKING_ACTIVE");
-    m_listValue.emplace_back("BroadcastFilter5f64bf1");
-    m_listValue.emplace_back("ReceiverList2cd352");
-    m_listValue.emplace_back("actandroidnetconnCONNECTIVITY_CHANGE");
-    m_listValue.emplace_back("actandroidnetconnINET_CONDITION_ACTION");
-    m_listValue.emplace_back("BroadcastFilter48baa36");
-    m_listValue.emplace_back("undrawn[Window879930d");
-    m_listValue.emplace_back("actmessenger_diode_badge_sync_action");
-    m_listValue.emplace_back("BroadcastFilterc8f6628");
-    m_listValue.emplace_back("BroadcastFilter15ed4db");
-    m_listValue.emplace_back("ReceiverList6b9ac4b");
-    m_listValue.emplace_back("ReceiverListd82d798");
-    m_listValue.emplace_back("comfacebookkatank10139u0");
-    m_listValue.emplace_back("actX2KCNETWORKING_INACTIVE");
-    m_listValue.emplace_back("BroadcastFilter7b11172");
-    m_listValue.emplace_back("ReceiverList89a9ea");
-    m_listValue.emplace_back("remote114791a");
-    m_listValue.emplace_back("comfacebookkatani10138u0");
-    m_listValue.emplace_back("remote9d73d7b");
-    m_listValue.emplace_back("remote6654bdd");
-    m_listValue.emplace_back("remote7db7dd5");
-    m_listValue.emplace_back("[07_05_02_31_30871]");
-    m_listValue.emplace_back("[07_05_02_32_00874]");
-    m_listValue.emplace_back("[07_05_02_32_30877]");
-    m_listValue.emplace_back("[07_05_02_33_00879]");
-    m_listValue.emplace_back("[07_05_02_33_30882]");
-    m_listValue.emplace_back("[07_05_02_34_00885]");
-    m_listValue.emplace_back("[07_05_02_34_30888]");
-    m_listValue.emplace_back("[07_05_02_35_00891]");
-    m_listValue.emplace_back("[07_05_02_35_30894]");
-    m_listValue.emplace_back("[07_05_02_36_00897]");
-    m_listValue.emplace_back("[07_05_02_36_30900]");
-    m_listValue.emplace_back("[07_05_02_37_00903]");
-    m_listValue.emplace_back("[07_05_02_37_30906]");
-    m_listValue.emplace_back("[07_05_02_38_00909]");
-    m_listValue.emplace_back("Type0avg33585625min33383003max34595");
-    m_listValue.emplace_back("[07_05_02_38_30912]");
-    m_listValue.emplace_back("[07_05_02_39_00915]");
-    m_listValue.emplace_back("[07_05_02_39_30918]");
-    m_listValue.emplace_back("[07_05_02_40_00921]");
-    m_listValue.emplace_back("[07_05_02_40_30924]");
-    m_listValue.emplace_back("[07_05_02_41_00927]");
-    m_listValue.emplace_back("[07_05_02_41_30930]");
-    m_listValue.emplace_back("[07_05_02_42_00933]");
-    m_listValue.emplace_back("[07_05_02_42_30936]");
-    m_listValue.emplace_back("3239comandroidproviderscalendaru0a13");
-    m_listValue.emplace_back("[07_05_02_43_00940]");
-    m_listValue.emplace_back("[07_05_02_43_30943]");
-    m_listValue.emplace_back("[07_05_02_44_00946]");
-    m_listValue.emplace_back("[07_05_02_44_30949]");
-    m_listValue.emplace_back("[07_05_02_45_00952]");
-    m_listValue.emplace_back("[07_05_02_45_30955]");
-    m_listValue.emplace_back("[07_05_02_46_00958]");
-    m_listValue.emplace_back("[07_05_02_46_30961]");
-    m_listValue.emplace_back("[07_05_02_47_00964]");
-    m_listValue.emplace_back("[07_05_02_47_30967]");
-    m_listValue.emplace_back("[07_05_02_48_00970]");
-    m_listValue.emplace_back("[07_05_02_48_30973]");
-    m_listValue.emplace_back("[07_05_02_49_00976]");
-    m_listValue.emplace_back("[07_05_02_49_30979]");
-    m_listValue.emplace_back("[07_05_02_50_00982]");
-    m_listValue.emplace_back("[07_05_02_50_30986]");
-    m_listValue.emplace_back("[07_05_02_51_00989]");
-    m_listValue.emplace_back("[07_05_02_51_30992]");
-    m_listValue.emplace_back("[07_05_02_52_00995]");
-    m_listValue.emplace_back("[07_05_02_52_30998]");
-    m_listValue.emplace_back("[07_05_02_53_01001]");
-    m_listValue.emplace_back("[07_05_02_53_31004]");
-    m_listValue.emplace_back("Type0avg33770664min33686max33838");
-    m_listValue.emplace_back("[07_05_02_54_01007]");
-    m_listValue.emplace_back("[07_05_02_54_31010]");
-    m_listValue.emplace_back("[07_05_02_55_01013]");
-    m_listValue.emplace_back("5896comgoogleandroidappstachyonu0a76");
-    m_listValue.emplace_back("5901comgoogleandroidappsmessagingu0a81");
-    m_listValue.emplace_back("cmpcomgoogleandroidappsmessagingshareddatamodelactionexecutionActionExecutorImpl$EmptyService");
-    m_listValue.emplace_back("uidpid100765896");
-    m_listValue.emplace_back("6026comandroidchromeu0a61");
-    m_listValue.emplace_back("9411comandroidsettings1000");
-    m_listValue.emplace_back("uidpid100815901");
-
+#if defined (F_CARE)
+    m_system_type = WebAPI::PLATFORM_F_CARE;
+#elif defined (F_SYSTEM)
+    m_system_type = WebAPI::PLATFORM_F_SYSTEM;
+#elif defined (F_ANDROID)
+    m_system_type = WebAPI::PLATFORM_F_ANDROID;
+#elif defined (F_ANDROID_WEBVIEW)
+    m_system_type = WebAPI::PLATFORM_F_ANDROID_WEBVIEW;
+#elif defined (F_IOS)
+    m_system_type = WebAPI::PLATFORM_F_IOS;
+#elif defined (IOS_WEBVIEW)
+    m_system_type = WebAPI::PLATFORM_F_IOS_WEBVIEW;
+#else
+    m_system_type = WebAPI::PLATFORM_UNKNOWN;
+#endif
     m_initState = false;
     m_token = "";
+
     m_unlockState = unlockChilkat();
     m_dropBoxToken = "";
     m_existedPackagedList.clear();
@@ -1159,24 +553,9 @@ bool WebAPI::getDropboxToken(std::string &dropboxToken)
     return result;
 }
 
-bool WebAPI::makeDir(const char *folerName)
-{
-    LOGD("folerName: %s", folerName);
-    int status = mkdir(folerName, 0777);
-    LOGD("status: %d -- error: %d", status, errno);
-    if ((status < 0) && (errno != EEXIST))
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
 std::string WebAPI::getDomain()
 {
-    switch (m_deviceInfo.platform) {
+    switch (m_system_type) {
     case WebAPI::PLATFORM_F_CARE:
         return "https://api1.fity.one/cgi-bin/fity-one.cgi?system=f_care";
     case WebAPI::PLATFORM_F_SYSTEM:
@@ -1292,9 +671,7 @@ bool WebAPI::initWebAPIs(const char *token, DEVICE_INFO& deviceInfo)
 {
     LOGD("initWebAPIs");
     CkJsonObject deviceJson;
-    if(deviceInfo.platform < PLATFORM_F_CARE || deviceInfo.platform > PLATFORM_F_IOS_WEBVIEW) {
-        LOGE("Invalid platform!");
-    } else if(deviceInfo.device_id == nullptr || std::string(deviceInfo.device_id).empty()) {
+    if(deviceInfo.device_id == nullptr || std::string(deviceInfo.device_id).empty()) {
         LOGE("Invalid device_id!");
     } else if (token == nullptr || std::string(token).empty()) {
         LOGE("Invalid token");
@@ -1305,7 +682,7 @@ bool WebAPI::initWebAPIs(const char *token, DEVICE_INFO& deviceInfo)
         m_deviceInfo = deviceInfo;
         m_token = token;
         LOGD("m_token: %s", m_token.data());
-        LOGD("m_deviceInfo: %s", deviceInfo2CKJson(m_deviceInfo).data());
+        LOGD("m_deviceInfo: %s", deviceInfo2CKJson(m_system_type, m_deviceInfo).data());
     }
 
     LOGD("initWebAPIs: %s", (initState() ? "successful" : "failure"));
@@ -1828,8 +1205,7 @@ std::string WebAPI::getCodeFromImap(const char * imapServer, int port, const cha
         return "";
     }
     // Send the non-standard ID command...
-    const char *rawResponse = nullptr;
-    rawResponse = imap.sendRawCommand("ID (\"GUID\" \"1\")");
+    imap.sendRawCommand("ID (\"GUID\" \"1\")");
     if (!imap.get_LastMethodSuccess())
     {
         LOGE("imap.sendRawCommand: %s", imap.lastErrorText());
@@ -1924,7 +1300,7 @@ bool WebAPI::sendRequest(const char * caller, CkJsonObject &bodyData, CkJsonObje
     if (initState())
     {
         CkJsonObject deviceInfo;
-        if (loadJson(deviceInfo,deviceInfo2CKJson(m_deviceInfo).data())) {
+        if (loadJson(deviceInfo,deviceInfo2CKJson(m_system_type, m_deviceInfo).data())) {
             if(extraDeviceInfo) {
                 LOGD("extraDeviceInfo: %s", extraDeviceInfo);
                 CkJsonObject extraDeviceInfoObj;
@@ -1971,7 +1347,7 @@ bool WebAPI::sendRequest(const char * caller, CkJsonObject &bodyData, CkJsonObje
         http.SetRequestHeader("mobile-secret-key", md5(m_token).data());
 
         CkCert cert;
-        if(!getCert(cert, static_cast<WebAPI::E_SUPPORTED_PLATFORM>(m_deviceInfo.platform))) {
+        if(!getCert(cert, m_system_type)) {
             LOGE("GetCert failed!");
             response.UpdateString("error", "GetCert failed!");
         } else if(!http.SetSslClientCert(cert)) {
@@ -2153,8 +1529,7 @@ bool WebAPI::checkLoginHotmail(std::string &email, std::string &password) const
         return false;
     }
     // Send the non-standard ID command...
-    const char *rawResponse = nullptr;
-    rawResponse = imap.sendRawCommand("ID (\"GUID\" \"1\")");
+    imap.sendRawCommand("ID (\"GUID\" \"1\")");
     if (!imap.get_LastMethodSuccess())
     {
         LOGE("imap.sendRawCommand: %s", imap.lastErrorText());

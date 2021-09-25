@@ -23,9 +23,11 @@
 
 #else /* ANDROID */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <cstring>
 
 #ifdef DEBUG_MODE
 #define LOGV(...) D(__VA_ARGS__)
@@ -33,13 +35,6 @@
 #define LOGI(...) D(__VA_ARGS__)
 #define LOGW(...) D(__VA_ARGS__)
 #define LOGE(...) E(__VA_ARGS__)
-#else
-#define LOGV(...)
-#define LOGD(...)
-#define LOGI(...)
-#define LOGW(...)
-#define LOGE(...)
-#endif
 
 static void
 D(const char *msg, ...)
@@ -64,6 +59,13 @@ E(const char *msg, ...)
     fprintf(stderr, "\n");
     va_end (ap);
 }
+#else
+#define LOGV(...)
+#define LOGD(...)
+#define LOGI(...)
+#define LOGW(...)
+#define LOGE(...)
+#endif
 
 #endif /* ANDROID */
 
