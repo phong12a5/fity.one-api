@@ -399,10 +399,10 @@ std::string deviceInfo2CKJson(const WebAPI::E_SUPPORTED_PLATFORM platform, const
 
     switch (platform) {
     case WebAPI::PLATFORM_F_CARE:
-        json.UpdateString("system","f_system");
+        json.UpdateString("system","f_care");
         break;
     case WebAPI::PLATFORM_F_SYSTEM:
-        json.UpdateString("system","f_care");
+        json.UpdateString("system","f_system");
         break;
     case WebAPI::PLATFORM_F_ANDROID:
         json.UpdateString("system","f_android");
@@ -523,7 +523,7 @@ bool WebAPI::unlockChilkat()
 {
     LOGD("unlockChilkat");
     CkGlobal glob;
-    bool success_global = glob.UnlockBundle("VONGTH.CB4082020_9kru5rnD5R2h");
+    bool success_global = glob.UnlockBundle("AUTFRM.CB4082023_Pz2Ry7az86p4");
     if (!success_global)
     {
         LOGD("Error: %s", glob.lastErrorText());
