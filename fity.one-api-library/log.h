@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <iostream>
 
-#ifdef ANDROID_PLATFORM
+#ifdef ANDROID
 #include <android/log.h>
 
 #ifdef DEBUG_MODE
