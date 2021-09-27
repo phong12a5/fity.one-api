@@ -3,6 +3,13 @@
 
 # Sets the minimum version of CMake required to build the native library.
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message("Building debug mode")
+    add_definitions( -DDEBUG_MODE )
+else()
+    message("Building release mode")
+endif()
+
 cmake_minimum_required(VERSION 3.4.1)
 
 # Declares and names the project.
