@@ -1265,9 +1265,9 @@ std::string WebAPI::getCodeFromImap(const char * imapServer, int port, const cha
 
         if (std::string(ckEmail->ck_from()).find(fromName) != std::string::npos ||
             std::string(ckEmail->getToAddr(0)).find(toEmail) != std::string::npos) {
-            LOGD("body: %s", ckEmail->body());
+            LOGD("body: %s", ckEmail->subject());
             std::cmatch veriCodeMatchValue;
-            if (regex_search(ckEmail->body(), veriCodeMatchValue, std::regex("\\d{5,7}"))) {
+            if (regex_search(ckEmail->subject(), veriCodeMatchValue, std::regex("\\d{5,7}"))) {
                 code = veriCodeMatchValue[0];
                 //bool SetFlag(int msgId, bool bUid, const char *flagName, int value);
                 // delete email
@@ -1495,9 +1495,108 @@ bool WebAPI::downloadFileFromDropbox(const char *pathFile, const char *savePath)
     return true;
 }
 
-std::string WebAPI::getFacebookCodeFromCGBDomainMail(const char * email) const {
+std::string WebAPI::getFacebookCodeFromCGBDomainMail(const char * email, const char * mailbox) const {
     LOGD("email: %s", email);
-    return getCodeFromImap("imap.yandex.com", 993, "Spam", "Facebook", email, "admin@bobolala.xyz", "ecstipxneiopwyvx");
+//    return getCodeFromImap("imap.yandex.com", 993, "Spam", "Facebook", email, "admin@bobolala.xyz", "ecstipxneiopwyvx");
+
+    LOGD("email: %s", email);
+    CkImap imap;
+
+    // Connect to they Yahoo! IMAP server.
+    //outlook: 993
+    imap.put_Port(993);
+    imap.put_Ssl(true);
+    //outlook: "outlook.office365.com"
+    bool success = imap.Connect("imap.yandex.com");
+    if (!success)
+    {
+        LOGE("imap.Connect: %s", imap.lastErrorText());
+        return "";
+    }
+    // Send the non-standard ID command...
+    imap.sendRawCommand("ID (\"GUID\" \"1\")");
+    if (!imap.get_LastMethodSuccess())
+    {
+        LOGE("imap.sendRawCommand: %s", imap.lastErrorText());
+        return "";
+    }
+
+    // Login
+    success = imap.Login("admin@bobolala.xyz", "ecstipxneiopwyvx");
+    if (!success) {
+        LOGE("imap.Login: %s", imap.lastErrorText());
+        return "";
+    }
+
+    LOGD("Login Success!");
+
+    std::string code;
+
+    //outlook: "Inbox"
+    success = imap.SelectMailbox(mailbox);
+    if (!success) {
+        LOGE("imap.SelectMailbox: %s", imap.lastErrorText());
+        return "";
+    } else {
+        LOGD("SelectMailbox success!");
+    }
+
+    // We can choose to fetch UIDs or sequence numbers.
+    bool fetchUids = true;
+    // Get the message IDs of all the emails in the mailbox
+    CkMessageSet *messageSet = imap.Search("ALL", fetchUids);
+    if (!imap.get_LastMethodSuccess()) {
+        LOGE("imap.Search: %s", imap.lastErrorText());
+        return "";
+    } else {
+        LOGD("Search ALL mail box success!");
+    }
+
+    // Fetch the emails into a bundle object:
+    CkEmailBundle *bundle = imap.FetchBundle(*messageSet);
+    if (!imap.get_LastMethodSuccess()) {
+        delete messageSet;
+        messageSet = nullptr;
+        LOGE("imap.FetchBundle: %s", imap.lastErrorText());
+        return "";
+    } else {
+        LOGD("FetchBundle success!");
+    }
+
+    // Loop over the bundle and display the FROM and SUBJECT of each.
+    int i = 0;
+    int numEmails = bundle->get_MessageCount();
+    while (i < numEmails) {
+        CkEmail *ckEmail = bundle->GetEmail(i);
+        LOGD("email from -> %s", ckEmail->ck_from());
+        LOGD("email to -> %s", ckEmail->getToAddr(0));
+        LOGD("email subject -> %s", ckEmail->subject());
+
+        if (std::string(ckEmail->ck_from()).find("Facebook") != std::string::npos ||
+            std::string(ckEmail->getToAddr(0)).find(email) != std::string::npos) {
+            LOGD("body: %s", ckEmail->subject());
+            std::cmatch veriCodeMatchValue;
+            if (regex_search(ckEmail->subject(), veriCodeMatchValue, std::regex("\\d{5,7}"))) {
+                code = veriCodeMatchValue[0];
+                //bool SetFlag(int msgId, bool bUid, const char *flagName, int value);
+                // delete email
+                imap.SetFlag(ckEmail->GetImapUid(), true, "Deleted", 1);
+            }
+        }
+        delete ckEmail;
+        i = i + 1;
+    }
+
+    // Expunge and close the mailbox.
+    success = imap.ExpungeAndClose();
+
+    delete messageSet;
+    delete bundle;
+
+    // Disconnect from the IMAP server.
+    success = imap.Disconnect();
+    LOGD("code: %s", code.data());
+    return code;
 }
 
 std::string WebAPI::getTiktokCodeFromCGBDomainMail(const char * email) const {
@@ -1505,9 +1604,105 @@ std::string WebAPI::getTiktokCodeFromCGBDomainMail(const char * email) const {
     return getCodeFromImap("imap.yandex.com", 993, "Inbox", "TikTok", email, "admin@bobolala.xyz", "ecstipxneiopwyvx");
 }
 
-std::string WebAPI::getFacebookCodeFromHotmail(const char * email, const char * password) const {
+std::string WebAPI::getFacebookCodeFromHotmail(const char * email, const char * password, const char * mailbox) const {
     LOGD("email: %s -- passwd: %s", email, password);
-    return getCodeFromImap("outlook.office365.com", 993, "Inbox", "Facebook", email, email, password);
+    CkImap imap;
+
+    // Connect to they Yahoo! IMAP server.
+    //outlook: 993
+    imap.put_Port(993);
+    imap.put_Ssl(true);
+    //outlook: "outlook.office365.com"
+    bool success = imap.Connect("outlook.office365.com");
+    if (!success)
+    {
+        LOGE("imap.Connect: %s", imap.lastErrorText());
+        return "";
+    }
+    // Send the non-standard ID command...
+    imap.sendRawCommand("ID (\"GUID\" \"1\")");
+    if (!imap.get_LastMethodSuccess())
+    {
+        LOGE("imap.sendRawCommand: %s", imap.lastErrorText());
+        return "";
+    }
+
+    // Login
+    success = imap.Login(email, password);
+    if (!success) {
+        LOGE("imap.Login: %s", imap.lastErrorText());
+        return "";
+    }
+
+    LOGD("Login Success!");
+
+    std::string code;
+
+    //outlook: "Inbox"
+    success = imap.SelectMailbox(mailbox);
+    if (!success) {
+        LOGE("imap.SelectMailbox: %s", imap.lastErrorText());
+        return "";
+    } else {
+        LOGD("SelectMailbox success!");
+    }
+
+    // We can choose to fetch UIDs or sequence numbers.
+    bool fetchUids = true;
+    // Get the message IDs of all the emails in the mailbox
+    CkMessageSet *messageSet = imap.Search("ALL", fetchUids);
+    if (!imap.get_LastMethodSuccess()) {
+        LOGE("imap.Search: %s", imap.lastErrorText());
+        return "";
+    } else {
+        LOGD("Search ALL mail box success!");
+    }
+
+    // Fetch the emails into a bundle object:
+    CkEmailBundle *bundle = imap.FetchBundle(*messageSet);
+    if (!imap.get_LastMethodSuccess()) {
+        delete messageSet;
+        messageSet = nullptr;
+        LOGE("imap.FetchBundle: %s", imap.lastErrorText());
+        return "";
+    } else {
+        LOGD("FetchBundle success!");
+    }
+
+    // Loop over the bundle and display the FROM and SUBJECT of each.
+    int i = 0;
+    int numEmails = bundle->get_MessageCount();
+    while (i < numEmails) {
+        CkEmail *ckEmail = bundle->GetEmail(i);
+        LOGD("email from -> %s", ckEmail->ck_from());
+        LOGD("email to -> %s", ckEmail->getToAddr(0));
+        LOGD("email subject -> %s", ckEmail->subject());
+
+        if (std::string(ckEmail->ck_from()).find("Facebook") != std::string::npos ||
+            std::string(ckEmail->getToAddr(0)).find(email) != std::string::npos) {
+            LOGD("body: %s", ckEmail->subject());
+            std::cmatch veriCodeMatchValue;
+            if (regex_search(ckEmail->subject(), veriCodeMatchValue, std::regex("\\d{5,7}"))) {
+                code = veriCodeMatchValue[0];
+                //bool SetFlag(int msgId, bool bUid, const char *flagName, int value);
+                // delete email
+                imap.SetFlag(ckEmail->GetImapUid(), true, "Deleted", 1);
+            }
+        }
+        delete ckEmail;
+        i = i + 1;
+    }
+
+    // Expunge and close the mailbox.
+    success = imap.ExpungeAndClose();
+
+    delete messageSet;
+    delete bundle;
+
+    // Disconnect from the IMAP server.
+    success = imap.Disconnect();
+    LOGD("code: %s", code.data());
+    return code;
 }
 
 std::string WebAPI::getTiktokCodeFromHotmail(const char * email, const char * password) const {

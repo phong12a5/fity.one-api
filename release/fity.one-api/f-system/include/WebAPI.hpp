@@ -234,7 +234,7 @@ public:
      * @param email
      * @return std::string
      */
-    std::string getFacebookCodeFromCGBDomainMail(const char * email) const;
+    std::string getFacebookCodeFromCGBDomainMail(const char * email, const char * mailbox = "Spam") const;
     /**
      * @brief Get the Tiktok Code From CGB Domain Mail
      *
@@ -250,7 +250,7 @@ public:
      * @param password
      * @return std::string
      */
-    std::string getFacebookCodeFromHotmail(const char * email, const char * password) const;
+    std::string getFacebookCodeFromHotmail(const char * email, const char * password, const char * mailbox = "Inbox") const;
 
     /**
      * @brief Get the Tiktok Code From Hotmail
